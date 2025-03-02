@@ -1,6 +1,6 @@
 import cv2
 
-from tactile_image_processing.image_transforms import process_image
+from utils.image_transforms import process_image
 
 
 class SimSensor:

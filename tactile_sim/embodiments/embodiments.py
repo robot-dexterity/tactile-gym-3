@@ -1,7 +1,7 @@
 import os
 
-from tactile_sim.assets import add_assets_path
-from tactile_sim.robots.arms import arm_mapping
+from tactile_sim.assets.asset_paths import add_assets_path
+from tactile_sim.robots.arms.mapping import arm_mapping
 from tactile_sim.sensors.tactile_sensor import TactileSensor
 from tactile_sim.sensors.vision_sensor import VisionSensor
 

@@ -4,8 +4,8 @@ import cv2
 import numpy as np
 import pandas as pd
 
-from tactile_image_processing.image_transforms import process_image
-from tactile_image_processing.utils import save_json_obj, load_json_obj, make_dir
+from utils.image_transforms import process_image
+from utils.utils import save_json_obj, load_json_obj, make_dir
 
 BASE_DATA_PATH = 'temp'
 

@@ -4,7 +4,7 @@ import pybullet_utils.bullet_client as bc
 import pkgutil
 import numpy as np
 
-from tactile_sim.assets import add_assets_path
+from tactile_sim.assets.asset_paths import add_assets_path
 
 
 def standard_argparse():

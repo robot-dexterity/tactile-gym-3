@@ -5,16 +5,17 @@ import os
 import itertools as it
 import pandas as pd
 
-from tactile_data.braille_classification import BASE_DATA_PATH as INPUT_DATA_PATH
-from tactile_data.tactile_sim2real import BASE_DATA_PATH as TARGET_DATA_PATH
-from tactile_image_processing.collect_data.collect_data import collect_data
-from tactile_image_processing.collect_data.setup_targets import setup_targets
-from tactile_image_processing.process_data.process_image_data import process_image_data, partition_data
-from tactile_image_processing.utils import make_dir, load_json_obj, save_json_obj
+INPUT_DATA_PATH = "../../tactile_data/data/braille_classification/"
+TARGET_DATA_PATH = ""
 
-from tactile_sim2real.collect_data.setup_collect_data import setup_collect_data, setup_collect_params
-from tactile_sim2real.utils.setup_embodiment import setup_embodiment
-from tactile_sim2real.utils.parse_args import parse_args
+from data_collection.collect_data.collect_data import collect_data
+from data_collection.collect_data.setup_targets import setup_targets
+from utils.process_data.process_image_data import process_image_data, partition_data
+from utils.utils import make_dir, load_json_obj, save_json_obj
+
+from data_collection.setup_collect_data import setup_collect_data, setup_collect_params
+from data_collection.collect_data.setup_embodiment import (setup_embodiment)
+from data_collection.parse_args import parse_args
 
 
 def launch(args):

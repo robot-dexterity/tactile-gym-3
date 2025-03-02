@@ -5,3 +5,8 @@ opensimplex
 opencv-python>=4.5.1
 pybullet>=3.1.0
 stable_baselines3>=1.0
+pandas
+pybullet>=3.2.7
+opencv-python>=4.11.0
+scipy>=1.15.0
+scikit-image>=0.25.2

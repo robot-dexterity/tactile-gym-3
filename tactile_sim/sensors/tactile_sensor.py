@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import cv2
 
-from tactile_sim.assets import add_assets_path
+from tactile_sim.assets.asset_paths import add_assets_path
 from tactile_sim.utils.pybullet_draw_utils import draw_link_frame
 from tactile_sim.utils.pybullet_draw_utils import draw_frame
 from tactile_sim.utils.transforms import quat2euler, inv_transform_vec_eul
