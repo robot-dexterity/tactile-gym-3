@@ -8,11 +8,11 @@ import numpy as np
 import pandas as pd
 import torch
 
-from tactile_data.tactile_servo_control import BASE_MODEL_PATH
-from tactile_image_processing.utils import load_json_obj
-from tactile_learning.utils.utils_plots import LearningPlotter, RegressionPlotter
+BASE_MODEL_PATH = ""
+from utils.utils import load_json_obj
+from learning.image_to_image_learning.utils.utils_plots import LearningPlotter, RegressionPlotter
 
-from tactile_servo_control.utils.parse_args import parse_args
+from learning.tactile_feature_learning.utils.parse_args import parse_args
 
 
 class LabelEncoder:

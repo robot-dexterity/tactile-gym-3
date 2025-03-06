@@ -4,8 +4,8 @@ import cv2
 import pandas as pd
 import torch
 
-from tactile_image_processing.image_transforms import process_image
-from tactile_image_processing.image_transforms import augment_image
+from utils.image_transforms import process_image
+from utils.image_transforms import augment_image
 
 
 class ImageDataGenerator(torch.utils.data.Dataset):

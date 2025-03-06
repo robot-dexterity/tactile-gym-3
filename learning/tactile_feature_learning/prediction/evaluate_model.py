@@ -7,15 +7,14 @@ import pandas as pd
 from torch.autograd import Variable
 import torch
 
-from tactile_data.tactile_servo_control import BASE_DATA_PATH, BASE_MODEL_PATH
-from tactile_image_processing.utils import load_json_obj
-from tactile_learning.supervised.models import create_model
-from tactile_learning.supervised.image_generator import ImageDataGenerator
-from tactile_learning.utils.utils_plots import RegressionPlotter
+from utils.utils import load_json_obj
+from learning.image_to_image_learning.supervised.models import create_model
+from learning.image_to_image_learning.supervised.image_generator import ImageDataGenerator
+from learning.image_to_image_learning.utils.utils_plots import RegressionPlotter
 
-from tactile_servo_control.learning.setup_training import csv_row_to_label
-from tactile_servo_control.utils.label_encoder import LabelEncoder
-from tactile_servo_control.utils.parse_args import parse_args
+from learning.tactile_feature_learning.learning.setup_training import csv_row_to_label
+from learning.tactile_feature_learning.utils.label_encoder import LabelEncoder
+from learning.tactile_feature_learning.utils.parse_args import parse_args
 
 
 def evaluate_model(
@@ -78,7 +77,7 @@ def evaluate_model(
     )
 
 
-def evaluation(args):
+def evaluation(args, data_path, model_path):
 
     output_dir = '_'.join([args.robot, args.sensor])
 
@@ -88,11 +87,11 @@ def evaluation(args):
         model_dir_name = '_'.join(filter(None, [args.model, *args.model_version]))
 
         val_data_dirs = [
-            os.path.join(BASE_DATA_PATH, output_dir, args.task, dir) for dir in args.val_dirs
+            os.path.join(data_path, output_dir, args.task, dir) for dir in args.val_dirs
         ]
 
         # set model dir
-        model_dir = os.path.join(BASE_MODEL_PATH, output_dir, args.task, model_dir_name)
+        model_dir = os.path.join(model_path, output_dir, args.task, model_dir_name)
 
         # setup parameters
         learning_params = load_json_obj(os.path.join(model_dir, 'learning_params'))

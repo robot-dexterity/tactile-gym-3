@@ -8,7 +8,7 @@ import torch.optim as optim
 import torch.nn as nn
 import torch
 from torch.utils.tensorboard import SummaryWriter
-from tactile_learning.utils.utils_learning import get_lr
+from learning.image_to_image_learning.utils.utils_learning import get_lr
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 

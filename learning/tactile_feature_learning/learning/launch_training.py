@@ -4,19 +4,23 @@ python launch_training.py -r sim -s tactip -m simple_cnn -t edge_2d
 import os
 import itertools as it
 
-from tactile_data.tactile_servo_control import BASE_DATA_PATH, BASE_MODEL_PATH
-from tactile_image_processing.utils import make_dir
-from tactile_learning.supervised.image_generator import ImageDataGenerator
-from tactile_learning.supervised.models import create_model
-from tactile_learning.supervised.train_model import train_model
-from tactile_learning.utils.utils_learning import seed_everything
-from tactile_learning.utils.utils_plots import RegressionPlotter
+BASE_DATA_PATH = "../../../../tactile_data/data/tactile_sim2real/"
+BASE_MODEL_PATH = ""
 
-from tactile_servo_control.learning.setup_training import setup_training, csv_row_to_label
-from tactile_servo_control.prediction.evaluate_model import evaluate_model
-from tactile_servo_control.utils.label_encoder import LabelEncoder
-from tactile_servo_control.utils.parse_args import parse_args
+from utils.utils import make_dir
+from learning.image_to_image_learning.supervised.image_generator import ImageDataGenerator
+from learning.image_to_image_learning.supervised.models import create_model
+from learning.image_to_image_learning.supervised.train_model import train_model
+from learning.image_to_image_learning.utils.utils_learning import seed_everything
+from learning.image_to_image_learning.utils.utils_plots import RegressionPlotter
 
+from learning.tactile_feature_learning.learning.setup_training import setup_training, csv_row_to_label
+from learning.tactile_feature_learning.prediction.evaluate_model import evaluate_model
+from learning.tactile_feature_learning.utils.label_encoder import LabelEncoder
+from learning.tactile_feature_learning.utils.parse_args import parse_args
+
+import matplotlib
+matplotlib.use("TkAgg")
 
 def launch(args):
 
@@ -98,11 +102,11 @@ def launch(args):
 if __name__ == "__main__":
 
     args = parse_args(
-        robot='sim',
+        robot='sim_ur',
         sensor='tactip',
         tasks=['edge_2d'],
-        train_dirs=['train_data'],
-        val_dirs=['val_data'],
+        train_dirs=['train_shear'],
+        val_dirs=['val_shear'],
         models=['simple_cnn'],
         model_version=[''],
         device='cuda'

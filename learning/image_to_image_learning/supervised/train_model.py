@@ -1,5 +1,5 @@
-from tactile_learning.supervised.simple_train_model import simple_train_model
-from tactile_learning.supervised.train_model_w_metrics import train_model_w_metrics
+from learning.image_to_image_learning.supervised.simple_train_model import simple_train_model
+from learning.image_to_image_learning.supervised.train_model_w_metrics import train_model_w_metrics
 
 
 def train_model(
