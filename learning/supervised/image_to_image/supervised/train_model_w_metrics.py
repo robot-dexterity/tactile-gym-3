@@ -1,19 +1,22 @@
 import os
 import warnings
 import time
+import pickle
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
 from torch.autograd import Variable
 import torch.optim as optim
 import torch.nn as nn
 import torch
 from torch.utils.tensorboard import SummaryWriter
-from learning.image_to_image_learning.utils.utils_learning import get_lr
+
+from learning.supervised.image_to_image.utils.utils_learning import get_lr
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 
-def simple_train_model(
+def train_model_w_metrics(
     prediction_mode,
     model,
     label_encoder,
@@ -21,9 +24,10 @@ def simple_train_model(
     val_generator,
     learning_params,
     save_dir,
+    error_plotter=None,
+    calculate_train_metrics=False,
     device='cpu'
 ):
-
     # tensorboard writer for tracking vars
     writer = SummaryWriter(os.path.join(save_dir, 'tensorboard_runs'))
 
@@ -41,9 +45,6 @@ def simple_train_model(
         num_workers=learning_params['n_cpu']
     )
 
-    n_train_batches = len(train_loader)
-    n_val_batches = len(val_loader)
-
     # define optimizer and loss
     if prediction_mode == 'classification':
         loss = nn.CrossEntropyLoss()
@@ -53,13 +54,13 @@ def simple_train_model(
         raise Warning("Incorrect prediction mode provided, falling back on MSEloss")
         loss = nn.MSELoss()
 
+    # define optimizer
     optimizer = optim.Adam(
         model.parameters(),
         lr=learning_params['lr'],
         betas=(learning_params["adam_b1"], learning_params["adam_b2"]),
         weight_decay=learning_params['adam_decay']
     )
-
     lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(
         optimizer,
         factor=learning_params['lr_factor'],
@@ -67,12 +68,20 @@ def simple_train_model(
         verbose=True
     )
 
-    def run_epoch(loader, n_batches, training=True):
+    def run_epoch(loader, n_batches_per_epoch, training=True):
 
         epoch_batch_loss = []
         epoch_batch_acc = []
 
-        for batch in loader:
+        # complete dateframe of predictions and targets
+        pred_df = pd.DataFrame()
+        targ_df = pd.DataFrame()
+
+        for i, batch in enumerate(loader):
+
+            # run set number of batches per epoch
+            if n_batches_per_epoch is not None and i >= n_batches_per_epoch:
+                break
 
             # get inputs
             inputs, labels_dict = batch['inputs'], batch['labels']
@@ -101,15 +110,31 @@ def simple_train_model(
                 loss_size.backward()
                 optimizer.step()
 
-        return epoch_batch_loss, epoch_batch_acc
+            # calculate metrics that are useful to keep track of during training
+            # this can slow learning noticably, particularly if train metrics are tracked
+            if not training or calculate_train_metrics:
 
-    # for tracking overall train time
+                # decode predictions into label
+                predictions_dict = label_encoder.decode_label(outputs)
+
+                # append predictions and labels to dataframes
+                batch_pred_df = pd.DataFrame.from_dict(predictions_dict)
+                batch_targ_df = pd.DataFrame.from_dict(labels_dict)
+                pred_df = pd.concat([pred_df, batch_pred_df])
+                targ_df = pd.concat([targ_df, batch_targ_df])
+
+        # reset indices to be 0 -> test set size
+        pred_df = pred_df.reset_index(drop=True).fillna(0.0)
+        targ_df = targ_df.reset_index(drop=True).fillna(0.0)
+        return epoch_batch_loss, epoch_batch_acc, pred_df, targ_df
+
+    # get time for printing
     training_start_time = time.time()
 
     # for tracking metrics across training
     train_loss = []
-    val_loss = []
     train_acc = []
+    val_loss = []
     val_acc = []
 
     # for saving best model
@@ -120,14 +145,15 @@ def simple_train_model(
         # Main training loop
         for epoch in range(1, learning_params['epochs'] + 1):
 
-            train_epoch_loss, train_epoch_acc = run_epoch(
-                train_loader, n_train_batches, training=True
+            # ========= Training =========
+            train_epoch_loss, train_epoch_acc, train_pred_df, train_targ_df = run_epoch(
+                train_loader, learning_params['n_train_batches_per_epoch'], training=True
             )
 
             # ========= Validation =========
             model.eval()
-            val_epoch_loss, val_epoch_acc = run_epoch(
-                val_loader, n_val_batches, training=False
+            val_epoch_loss, val_epoch_acc, val_pred_df, val_targ_df = run_epoch(
+                val_loader, learning_params['n_val_batches_per_epoch'], training=False
             )
             model.train()
 
@@ -154,6 +180,24 @@ def simple_train_model(
             writer.add_scalar('accuracy/val', np.mean(val_epoch_acc), epoch)
             writer.add_scalar('learning_rate', get_lr(optimizer), epoch)
 
+            # calculate task metrics
+            if calculate_train_metrics:
+                train_metrics = label_encoder.calc_metrics(train_pred_df, train_targ_df)
+            val_metrics = label_encoder.calc_metrics(val_pred_df, val_targ_df)
+
+            # print task metrics
+            if calculate_train_metrics:
+                print("Train Metrics")
+                label_encoder.print_metrics(train_metrics)
+                print("")
+            print("Validation Metrics")
+            label_encoder.print_metrics(val_metrics)
+
+            # write task_metrics to tensorboard
+            if calculate_train_metrics:
+                label_encoder.write_metrics(writer, train_metrics, epoch, mode='train')
+            label_encoder.write_metrics(writer, val_metrics, epoch, mode='val')
+
             # track weights on tensorboard
             try:
                 for name, weight in model.named_parameters():
@@ -162,6 +206,13 @@ def simple_train_model(
                     writer.add_histogram(f'{full_name}.grad', weight.grad, epoch)
             except ValueError:
                 warnings.warn("Unable to save weights/gradients to tensorboard.")
+
+            # update plots
+            if error_plotter:
+                if not error_plotter.final_only:
+                    error_plotter.update(
+                        val_pred_df, val_targ_df, val_metrics
+                    )
 
             # save the model with lowest val loss
             if np.mean(val_epoch_loss) < lowest_val_loss:
@@ -172,6 +223,11 @@ def simple_train_model(
                     model.state_dict(),
                     os.path.join(save_dir, 'best_model.pth')
                 )
+
+                # save loss and acc, save val
+                save_vars = [train_loss, val_loss, train_acc, val_acc]
+                with open(os.path.join(save_dir, 'train_val_loss_acc.pkl'), 'bw') as f:
+                    pickle.dump(save_vars, f)
 
             # decay the lr
             lr_scheduler.step(np.mean(val_epoch_loss))

@@ -8,13 +8,13 @@ from torch.autograd import Variable
 import torch
 
 from utils.utils import load_json_obj
-from learning.image_to_image_learning.supervised.models import create_model
-from learning.image_to_image_learning.supervised.image_generator import ImageDataGenerator
-from learning.image_to_image_learning.utils.utils_plots import RegressionPlotter
+from learning.supervised.image_to_image.supervised.models import create_model
+from learning.supervised.image_to_image.supervised.image_generator import ImageDataGenerator
+from learning.supervised.image_to_image.utils.utils_plots import RegressionPlotter
 
-from learning.tactile_feature_learning.learning.setup_training import csv_row_to_label
-from learning.tactile_feature_learning.utils.label_encoder import LabelEncoder
-from learning.tactile_feature_learning.utils.parse_args import parse_args
+from learning.supervised.image_to_feature.learning.setup_training import csv_row_to_label
+from learning.supervised.image_to_feature.utils.label_encoder import LabelEncoder
+from learning.supervised.image_to_feature.utils.parse_args import parse_args
 
 
 def evaluate_model(

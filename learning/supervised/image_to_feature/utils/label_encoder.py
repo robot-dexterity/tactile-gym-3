@@ -10,9 +10,9 @@ import torch
 
 BASE_MODEL_PATH = ""
 from utils.utils import load_json_obj
-from learning.image_to_image_learning.utils.utils_plots import LearningPlotter, RegressionPlotter
+from learning.supervised.image_to_image.utils.utils_plots import LearningPlotter, RegressionPlotter
 
-from learning.tactile_feature_learning.utils.parse_args import parse_args
+from learning.supervised.image_to_feature.utils.parse_args import parse_args
 
 
 class LabelEncoder:
