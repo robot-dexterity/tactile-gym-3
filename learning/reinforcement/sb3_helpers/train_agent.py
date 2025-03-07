@@ -4,14 +4,15 @@ import sys
 from stable_baselines3.common.callbacks import EvalCallback, EveryNTimesteps
 from stable_baselines3 import PPO, SAC
 
-import tactile_gym.envs
-from tactile_gym.sb3_helpers.params import import_parameters
-from tactile_gym.sb3_helpers.rl_utils import make_training_envs, make_eval_env
-from tactile_gym.sb3_helpers.eval_agent import final_evaluation
+import learning.reinforcement.envs
+from  learning.reinforcement.sb3_helpers.params import import_parameters
 
-from tactile_learning.utils.utils_learning import save_json_obj, convert_json, make_dir
+from learning.reinforcement.sb3_helpers.rl_utils import make_training_envs, make_eval_env
+from learning.reinforcement.sb3_helpers.eval_agent import final_evaluation
 
-from tactile_gym.sb3_helpers.custom.custom_callbacks import (
+from learning.supervised.image_to_image.utils.utils_learning import save_json_obj, convert_json, make_dir
+
+from learning.reinforcement.sb3_helpers.custom.custom_callbacks import (
     FullPlottingCallback,
     ProgressBarManager,
 )

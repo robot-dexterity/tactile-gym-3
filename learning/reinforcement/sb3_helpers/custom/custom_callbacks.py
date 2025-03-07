@@ -5,7 +5,7 @@ import os
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.results_plotter import load_results, ts2xy
 
-from tactile_gym.sb3_helpers.rl_plot_utils import plot_train_and_eval
+from learning.reinforcement.sb3_helpers.rl_plot_utils import plot_train_and_eval
 
 
 class SimplePlottingCallback(BaseCallback):

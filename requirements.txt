@@ -14,3 +14,4 @@ pytorch_model_summary
 vit-pytorch
 tensorboard
 seaborn
+gym

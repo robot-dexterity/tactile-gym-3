@@ -2,11 +2,17 @@ from stable_baselines3 import PPO, SAC
 from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3.common.env_util import make_vec_env
 
-import tactile_gym.envs
-from tactile_gym.sb3_helpers.params import import_parameters
-from tactile_gym.sb3_helpers.custom.custom_torch_layers import CustomCombinedExtractor
+import learning.reinforcement.envs
+
+from learning.reinforcement.sb3_helpers.params import import_parameters
+from learning.reinforcement.sb3_helpers.custom.custom_torch_layers import CustomCombinedExtractor
+
+import time
 
 if __name__ == "__main__":
+
+    import gymnasium as gym
+    print(gym.registry.keys())  # Check if 'object_push-v0' appears in the list
 
     algo_name = 'ppo'
     # algo_name = 'sac'

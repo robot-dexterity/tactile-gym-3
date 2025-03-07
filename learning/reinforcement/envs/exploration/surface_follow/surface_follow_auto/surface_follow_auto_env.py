@@ -1,4 +1,4 @@
-from tactile_gym.envs.exploration.surface_follow.base_surface_env import (
+from learning.reinforcement.envs.exploration.surface_follow.base_surface_env import (
     BaseSurfaceEnv,
 )
 

@@ -1,5 +1,5 @@
 import sys
-import gym
+import gymnasium as gym
 import numpy as np
 import pybullet as pb
 import pybullet_utils.bullet_client as bc
@@ -280,15 +280,15 @@ class BaseTactileEnv(gym.Env):
     def step(self, action):
         """
         Encode actions, send to embodiment to be applied to the environment.
-        Return observation, reward, terminal, info
+        Return observation, reward, termination flags, and info dictionary.
         """
 
-        # scale and embed actions appropriately
+        # Scale and transform actions
         encoded_actions = self.encode_actions(action)
         scaled_actions = self.scale_actions(encoded_actions)
         transformed_actions = self.transform_actions(scaled_actions)
 
-        # send action
+        # Send action
         self._env_step_counter += 1
         self.apply_action(
             transformed_actions,
@@ -296,10 +296,26 @@ class BaseTactileEnv(gym.Env):
             velocity_action_repeat=self._velocity_action_repeat,
             max_steps=self._max_blocking_pos_move_steps,
         )
-        # get data
+
+        # Get data
         reward, done = self.get_step_data()
         self._observation = self.get_observation()
-        return self._observation, reward, done, {}
+
+        # Ensure observation is float32
+        if isinstance(self._observation, dict):
+            self._observation = {k: np.array(v, dtype=np.float32) for k, v in self._observation.items()}
+        else:
+            self._observation = np.array(self._observation, dtype=np.float32)
+
+        # Ensure observation is within bounds
+        if not self.observation_space.contains(self._observation):
+            raise ValueError(f"Step observation {self._observation} is out of bounds!")
+
+        # Split done into Gymnasium's new API: terminated vs truncated
+        terminated = done  # If 'done' means the task is over
+        truncated = self._env_step_counter >= self._max_steps  # If episode is truncated due to time limit
+
+        return self._observation, reward, terminated, truncated, {}
 
     def apply_action(
         self,

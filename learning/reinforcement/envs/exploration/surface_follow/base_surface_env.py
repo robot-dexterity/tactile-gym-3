@@ -6,8 +6,8 @@ from tactile_sim.utils.setup_pb_utils import load_standard_environment
 from tactile_sim.utils.setup_pb_utils import set_debug_camera
 from tactile_sim.embodiments.embodiments import VisuoTactileArmEmbodiment
 
-from tactile_gym.assets import add_assets_path
-from tactile_gym.envs.base_tactile_env import BaseTactileEnv
+from learning.reinforcement.assets import add_assets_path
+from learning.reinforcement.envs.base_tactile_env import BaseTactileEnv
 
 
 class BaseSurfaceEnv(BaseTactileEnv):
@@ -130,7 +130,7 @@ class BaseSurfaceEnv(BaseTactileEnv):
             for y in range(int(self.num_heightfield_cols)):
 
                 height = (
-                    self.simplex_noise.noise2d(x=x * self.interpolate_noise, y=y * self.interpolate_noise)
+                    self.simplex_noise.noise2(x=x * self.interpolate_noise, y=y * self.interpolate_noise)
                     * self.height_perturbation_range
                 )
                 heightfield_data[x, y] = height
@@ -181,7 +181,7 @@ class BaseSurfaceEnv(BaseTactileEnv):
         Update an already loaded surface with random noise.
         """
         # set seed for simplex noise
-        self.simplex_noise = OpenSimplex(seed=self.np_random.randint(1e8))
+        self.simplex_noise = OpenSimplex(seed=self.np_random.integers(1e8))
         self.heightfield_data = self.gen_simplex_heigtfield()
 
         # update heightfield
@@ -273,32 +273,41 @@ class BaseSurfaceEnv(BaseTactileEnv):
 
         return init_tcp_pose
 
-    def reset(self):
+    def reset(self, seed=None, options=None):
         """
         Reset the environment after an episode terminates.
         """
+        # Set the random seed (Gymnasium requires handling seeding)
+        if seed is not None:
+            np.random.seed(seed)
 
-        # full reset pybullet sim to clear cache, this avoids silent bug where memory fills and visual
-        # rendering fails, this is more prevelant when loading/removing larger files
+        # Full reset of PyBullet simulation to clear cache
         if self.reset_counter > self.reset_limit:
             self.full_reset()
 
-        # reset vars
+        # Reset vars
         self.reset_counter += 1
         self._env_step_counter = 0
 
-        # update the workframe to a new position relative to surface
+        # Update workframe and initialize pose
         self.reset_task()
         init_tcp_pose = self.update_init_pose()
         self.embodiment.reset(reset_tcp_pose=init_tcp_pose)
 
-        # just to change variables to the reset pose incase needed before taking a step
+        # Update internal state before taking a step
         self.get_step_data()
 
-        # get the starting observation
+        # Get the starting observation
         self._observation = self.get_observation()
 
-        return self._observation
+        # Convert to float32 for SB3 compatibility
+        if isinstance(self._observation, dict):
+            self._observation = {k: np.array(v, dtype=np.float32) for k, v in self._observation.items()}
+        else:
+            self._observation = np.array(self._observation, dtype=np.float32)
+
+        # Gymnasium requires returning (obs, info), so we return an empty dict for now
+        return self._observation, {}
 
     def full_reset(self):
         """

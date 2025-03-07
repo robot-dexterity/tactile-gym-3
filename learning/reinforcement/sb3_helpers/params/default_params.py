@@ -1,6 +1,6 @@
 import torch.nn as nn
 from stable_baselines3.common.torch_layers import NatureCNN
-from tactile_gym.sb3_helpers.custom.custom_torch_layers import CustomCombinedExtractor
+from learning.reinforcement.sb3_helpers.custom.custom_torch_layers import CustomCombinedExtractor
 
 env_args = {
     "env_params": {

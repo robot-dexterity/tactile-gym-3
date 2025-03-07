@@ -1,8 +1,8 @@
-from tactile_gym.sb3_helpers.params.default_params import env_args
-from tactile_gym.sb3_helpers.params.default_params import rl_params_ppo
-from tactile_gym.sb3_helpers.params.default_params import ppo_params
-from tactile_gym.sb3_helpers.params.default_params import rl_params_sac
-from tactile_gym.sb3_helpers.params.default_params import sac_params
+from learning.reinforcement.sb3_helpers.params.default_params import env_args
+from learning.reinforcement.sb3_helpers.params.default_params import rl_params_ppo
+from learning.reinforcement.sb3_helpers.params.default_params import ppo_params
+from learning.reinforcement.sb3_helpers.params.default_params import rl_params_sac
+from learning.reinforcement.sb3_helpers.params.default_params import sac_params
 
 
 env_args["env_params"]["max_steps"] = 1000

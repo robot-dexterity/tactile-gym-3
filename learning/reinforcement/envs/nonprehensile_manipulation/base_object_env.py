@@ -6,7 +6,7 @@ from tactile_sim.embodiments.embodiments import VisuoTactileArmEmbodiment
 from tactile_sim.utils.transforms import inv_transform_eul, transform_eul
 from tactile_sim.utils.pybullet_draw_utils import draw_link_frame
 
-from tactile_gym.envs.base_tactile_env import BaseTactileEnv
+from learning.reinforcement.envs.base_tactile_env import BaseTactileEnv
 
 
 class BaseObjectEnv(BaseTactileEnv):
@@ -136,38 +136,36 @@ class BaseObjectEnv(BaseTactileEnv):
     def objframe_to_worldframe(self, pose):
         return inv_transform_eul(pose, self._obj_frame)
 
-    def reset(self):
-        """
-        Reset the environment after an episode terminates.
-        """
+    def reset(self, seed=None, options=None):
+        if seed is not None:
+            np.random.seed(seed)
 
-        # full reset pybullet sim to clear cache, this avoids silent bug where memory fills and visual
-        # rendering fails, this is more prevelant when loading/removing larger files
         if self.reset_counter == self.reset_limit:
             self.full_reset()
 
         self.reset_counter += 1
         self._env_step_counter = 0
 
-        # update the workframe to a new position if randomisations are on
         self.reset_task()
         self.update_workframe()
-
-        # reset object and goal
         self.reset_object()
         self.make_goal()
 
         init_tcp_pose = self.update_init_pose()
         self.embodiment.reset(reset_tcp_pose=init_tcp_pose)
 
-        # just to change variables to the reset pose incase needed before taking
-        # a step
         self.get_step_data()
 
-        # get the starting observation
+        # Ensure the observation is in NumPy format
         self._observation = self.get_observation()
 
-        return self._observation
+        if isinstance(self._observation, dict):
+            # Convert dict values to numpy arrays
+            self._observation = {k: np.array(v, dtype=np.float32) for k, v in self._observation.items()}
+        else:
+            self._observation = np.array(self._observation, dtype=np.float32)
+
+        return self._observation, {}
 
     def get_step_data(self):
 

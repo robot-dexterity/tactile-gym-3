@@ -5,9 +5,9 @@ import cv2
 
 import stable_baselines3 as sb3
 
-import tactile_gym.envs
-from tactile_gym.sb3_helpers.rl_utils import make_eval_env
-from tactile_learning.utils.utils_learning import load_json_obj
+import learning.reinforcement.envs
+from learning.reinforcement.sb3_helpers.rl_utils import make_eval_env
+from learning.supervised.image_to_image.utils.utils_learning import load_json_obj
 
 
 def eval_and_save_vid(

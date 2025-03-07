@@ -1,5 +1,5 @@
 import argparse
-import gym
+import gymnasium as gym
 import pybullet as pb
 
 from tactile_gym.utils.demo_utils import demo_rl_env
