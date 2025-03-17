@@ -11,3 +11,8 @@ opencv-python>=4.11.0
 scipy>=1.15.0
 scikit-image>=0.25.2
 pandas
+pytorch_model_summary
+vit-pytorch
+tensorboard
+seaborn
+gym
