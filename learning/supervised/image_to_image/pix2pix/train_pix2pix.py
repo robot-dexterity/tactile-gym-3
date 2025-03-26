@@ -9,8 +9,8 @@ from torch.utils.tensorboard import SummaryWriter
 import torch.optim as optim
 from torchvision.utils import save_image, make_grid
 
-from tactile_learning.utils.utils_learning import get_lr
-from tactile_learning.utils.utils_learning import make_dir
+from learning.supervised.image_to_image.utils.utils_learning import get_lr
+from learning.supervised.image_to_image.utils.utils_learning import make_dir
 
 
 def train_pix2pix(

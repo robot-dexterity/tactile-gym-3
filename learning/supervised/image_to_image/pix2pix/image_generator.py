@@ -4,9 +4,9 @@ import cv2
 import pandas as pd
 import torch
 
-from tactile_learning.supervised.image_generator import numpy_collate
-from tactile_image_processing.image_transforms import process_image
-from tactile_image_processing.image_transforms import augment_image
+from learning.supervised.image_to_image.supervised.image_generator import numpy_collate
+from utils.image_transforms import process_image
+from utils.image_transforms import augment_image
 
 
 class Pix2PixImageGenerator(torch.utils.data.Dataset):

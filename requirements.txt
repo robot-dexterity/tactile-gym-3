@@ -16,3 +16,4 @@ vit-pytorch
 tensorboard
 seaborn
 gym
+tqdm
