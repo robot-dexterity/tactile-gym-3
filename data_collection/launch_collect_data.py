@@ -5,7 +5,7 @@ import os
 import itertools as it
 import pandas as pd
 
-INPUT_DATA_PATH = "../../tactile_data/data/braille_classification/"
+INPUT_DATA_PATH = "../../tactile_data/data/tactile_servo_control/"
 TARGET_DATA_PATH = ""
 
 from data_collection.collect_data.collect_data import collect_data
@@ -87,11 +87,11 @@ def process_images(args, image_params, split=None):
 if __name__ == "__main__":
 
     args = parse_args(
-        inputs=['ur_tactip_small'],
+        inputs=['cr_tactip'],
         robot='sim_ur',
         sensor='tactip',
-        tasks=['alphabet'],
-        data_dirs=['train', 'val'],
+        tasks=['edge_2d'],
+        data_dirs=['train_data', 'val_data'],
         # sample_nums=[10]
     )
     launch(args)

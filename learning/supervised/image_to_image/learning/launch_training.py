@@ -9,9 +9,9 @@ TARGET_DATA_PATH = "../../../../../tactile_data/data/tactile_sim2real/"
 BASE_MODEL_PATH = ""
 
 from utils.utils import make_dir
-from learning.supervised.image_to_image.pix2pix.image_generator import Pix2PixImageGenerator
+from learning.supervised.image_to_image.pix2pix.image_generator import shPix2PixImageGenerator
 from learning.supervised.image_to_image.pix2pix.models import create_model
-from learning.supervised.image_to_image.pix2pix.train_pix2pix import train_pix2pix
+from learning.supervised.image_to_image.pix2pix.train_pix2pix import train_shpix2pix
 from learning.supervised.image_to_image.utils.utils_learning import seed_everything
 
 from learning.supervised.image_to_image.learning.setup_training import setup_training
@@ -51,12 +51,12 @@ def launch(args):
         )
 
         # configure dataloaders
-        train_generator = Pix2PixImageGenerator(
+        train_generator = shPix2PixImageGenerator(
             input_train_data_dirs,
             target_train_data_dirs,
             **{**image_params['image_processing'], **image_params['augmentation']}
         )
-        val_generator = Pix2PixImageGenerator(
+        val_generator = shPix2PixImageGenerator(
             input_val_data_dirs,
             target_val_data_dirs,
             **image_params['image_processing']
@@ -71,7 +71,7 @@ def launch(args):
         )
 
         # run training
-        train_pix2pix(
+        train_shpix2pix(
             generator,
             discriminator,
             train_generator,
@@ -79,21 +79,22 @@ def launch(args):
             learning_params,
             image_params['image_processing'],
             save_dir,
-            device=args.device
+            device=args.device,
+            debug=True
         )
 
 
 if __name__ == "__main__":
 
     args = parse_args(
-        inputs=['ur_tactip'],
-        targets=['sim_ur_tactip'],
+        inputs=['sim_ur_tactip'],
+        targets=['ur_tactip'],
         tasks=['edge_2d'],
         train_dirs=['train_shear'],
         val_dirs=['val_shear'],
         models=['pix2pix_128'],
         # model_version=['']
-        device="cpu"
+        device="cuda"
     )
 
     launch(args)
