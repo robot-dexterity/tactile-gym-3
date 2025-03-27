@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from tactile_gym.sb3_helpers.eval_agent import final_evaluation
+from learning.reinforcement.sb3_helpers.eval_agent import final_evaluation
 
 parser = argparse.ArgumentParser()
 
@@ -24,7 +24,7 @@ parser.add_argument(
 parser.add_argument(
     "-obs",
     type=str,
-    default='tactile',
+    default='s1_oracle',
     help='Options: {oracle, tactile, visual, visuotactile}'
 )
 
@@ -45,7 +45,7 @@ render = True
 
 # combine args
 saved_model_dir = os.path.join(
-    os.path.dirname(__file__), "../tactile_gym/sb3_helpers/saved_models",
+    os.path.dirname(__file__), "../learning/reinforcement/sb3_helpers/saved_models",
     env_name,
     algo_name,
     obs_type

@@ -2,9 +2,9 @@ import argparse
 import gymnasium as gym
 import pybullet as pb
 
-from tactile_gym.utils.demo_utils import demo_rl_env
-from tactile_gym.sb3_helpers.params import import_parameters
-import tactile_gym.envs
+from learning.reinforcement.utils.demo_utils import demo_rl_env
+from learning.reinforcement.sb3_helpers.params import import_parameters
+import learning.reinforcement.envs
 
 
 def main():

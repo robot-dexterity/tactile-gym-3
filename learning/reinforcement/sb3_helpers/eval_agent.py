@@ -106,8 +106,8 @@ def final_evaluation(
     )
 
     # load the trained model
-    model_path = os.path.join(saved_model_dir, "trained_models", "best_model.zip")
-    # model_path = os.path.join(saved_model_dir, "trained_models", "final_model.zip")
+    # model_path = os.path.join(saved_model_dir, "trained_models", "best_model")
+    model_path = os.path.join(saved_model_dir, "trained_models", "final_model.zip")
 
     # create the model with hyper params
     if rl_params["algo_name"] == "ppo":

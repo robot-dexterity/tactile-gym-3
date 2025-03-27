@@ -17,6 +17,9 @@ from learning.reinforcement.sb3_helpers.custom.custom_callbacks import (
     ProgressBarManager,
 )
 
+import matplotlib
+matplotlib.use("TkAgg")
+
 
 def train_agent(
     algo_name="ppo",
@@ -39,8 +42,10 @@ def train_agent(
     save_json_obj(convert_json(env_args), os.path.join(save_dir, "env_args"))
 
     # load the envs
+    env_args['env_params']['show_gui'] = False
     env = make_training_envs(env_id, env_args, rl_params, save_dir)
 
+    env_args['env_params']['show_gui'] = True
     eval_env = make_eval_env(
         env_id,
         env_args,
@@ -55,7 +60,7 @@ def train_agent(
         eval_freq=rl_params["eval_freq"],
         n_eval_episodes=rl_params["n_eval_episodes"],
         deterministic=True,
-        render=False,
+        render=True,
         verbose=1,
     )
 
@@ -104,8 +109,8 @@ if __name__ == "__main__":
     # algo_name = 'sac'
 
     # env_id = "edge_follow-v0"
-    env_id = 'surface_follow-v0'
-    # env_id = 'object_roll-v0'
+    # env_id = 'surface_follow-v0'
+    env_id = 'object_roll-v0'
     # env_id = "object_push-v0"
     # env_id = 'object_balance-v0'
 
