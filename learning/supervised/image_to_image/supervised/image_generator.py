@@ -45,6 +45,13 @@ class ImageDataGenerator(torch.utils.data.Dataset):
         # load csv file
         self._label_df = self.load_data_dirs(data_dirs)
 
+        new_shear_x = (self._label_df['shear_x'] * np.cos(np.deg2rad(-self._label_df['pose_Rz']))) - (
+                self._label_df['shear_y'] * np.sin(np.deg2rad(-self._label_df['pose_Rz'])))
+        new_shear_y = (self._label_df['shear_x'] * np.sin(np.deg2rad(-self._label_df['pose_Rz']))) + (
+                self._label_df['shear_y'] * np.cos(np.deg2rad(-self._label_df['pose_Rz'])))
+        self._label_df.loc[:, "shear_x"] = new_shear_x
+        self._label_df.loc[:, "shear_y"] = new_shear_y
+
     def load_data_dirs(self, data_dirs):
 
         # check if images or processed images; use for all dirs

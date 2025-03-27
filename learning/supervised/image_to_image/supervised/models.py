@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 from pytorch_model_summary import summary
 from vit_pytorch.vit import ViT
+from learning.supervised.image_to_image.supervised.models_mdn import MDN_AC, MDN_JL
 
 
 def create_model(
@@ -15,6 +16,10 @@ def create_model(
     display_model=True,
     device='cpu'
 ):
+    # for mdn head, base layers have model_out_dim
+    if '_mdn' in model_params['model_type']:
+        mdn_out_dim = out_dim
+        out_dim = model_params['mdn_kwargs']['model_out_dim']
 
     if model_params['model_type'] in ['fcn']:
         model = FCN(
@@ -25,7 +30,7 @@ def create_model(
         ).to(device)
         model.apply(weights_init_normal)
 
-    elif model_params['model_type'] in ['simple_cnn', 'posenet_cnn']:
+    elif 'simple_cnn' in model_params['model_type']:
         model = CNN(
             in_dim=in_dim,
             in_channels=in_channels,
@@ -33,7 +38,14 @@ def create_model(
             **model_params['model_kwargs']
         ).to(device)
         model.apply(weights_init_normal)
-
+    elif 'posenet_cnn' in model_params['model_type']:
+        model = CNN(
+            in_dim=in_dim,
+            in_channels=in_channels,
+            out_dim=out_dim,
+            **model_params['model_kwargs']
+        ).to(device)
+        model.apply(weights_init_normal)
     elif model_params['model_type'] == 'nature_cnn':
         model = NatureCNN(
             in_dim=in_dim,
@@ -58,11 +70,25 @@ def create_model(
             num_classes=out_dim,
             **model_params['model_kwargs']
         ).to(device)
-        
     else:
         raise ValueError('Incorrect model_type specified:  %s' % (model_params['model_type'],))
 
+    if '_mdn_ac' in model_params['model_type']:
+        model = MDN_AC(
+            model=model,
+            out_dim=mdn_out_dim,
+            **model_params['mdn_kwargs']
+        ).to(device)
+
+    elif '_mdn_jl' in model_params['model_type']:
+        model = MDN_JL(
+            model=model,
+            out_dim=mdn_out_dim,
+            **model_params['mdn_kwargs']
+        ).to(device)
+
     if saved_model_dir is not None:
+        print("LOADING MODEL")
         model.load_state_dict(torch.load(os.path.join(
             saved_model_dir, 'best_model.pth'), map_location='cpu')
         )
@@ -210,6 +236,7 @@ class CNN(nn.Module):
         self.fc = nn.Sequential(*fc_modules)
 
     def forward(self, x):
+        x = (x>0.5).float() #..todo: kipp this line seems to fix sim2real, why?
         x = self.cnn(x)
         x = x.reshape(x.shape[0], -1)
         x = self.fc(x)

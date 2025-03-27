@@ -15,9 +15,11 @@ from learning.supervised.image_to_image.utils.utils_learning import seed_everyth
 from learning.supervised.image_to_image.utils.utils_plots import RegressionPlotter
 
 from learning.supervised.image_to_feature.learning.setup_training import setup_training, csv_row_to_label
-from learning.supervised.image_to_feature.prediction.evaluate_model import evaluate_model
+from learning.supervised.image_to_feature.prediction.evaluate_model import evaluate_model, evaluate_mdn_model
 from learning.supervised.image_to_feature.utils.label_encoder import LabelEncoder
 from learning.supervised.image_to_feature.utils.parse_args import parse_args
+
+from learning.supervised.image_to_image.supervised.train_mdn_model import train_mdn_model
 
 import matplotlib
 matplotlib.use("TkAgg")
@@ -76,38 +78,62 @@ def launch(args):
             device=args.device
         )
 
-        train_model(
-            prediction_mode='regression',
-            model=model,
-            label_encoder=label_encoder,
-            train_generator=train_generator,
-            val_generator=val_generator,
-            learning_params=learning_params,
-            save_dir=save_dir,
-            error_plotter=error_plotter,
-            device=args.device
-        )
+        if "_mdn" not in args.model:
+            train_model(
+                prediction_mode='regression',
+                model=model,
+                label_encoder=label_encoder,
+                train_generator=train_generator,
+                val_generator=val_generator,
+                learning_params=learning_params,
+                save_dir=save_dir,
+                error_plotter=error_plotter,
+                device=args.device
+            )
+        else:
+            train_mdn_model(
+                prediction_mode='regression',
+                model=model,
+                label_encoder=label_encoder,
+                train_generator=train_generator,
+                val_generator=val_generator,
+                learning_params=learning_params,
+                save_dir=save_dir,
+                error_plotter=error_plotter,
+                device=args.device
+            )
 
         # perform a final evaluation using the last model
-        evaluate_model(
-            model,
-            label_encoder,
-            val_generator,
-            learning_params,
-            error_plotter,
-            device=args.device
-        )
+        if "_mdn" not in args.model:
+            evaluate_model(
+                model,
+                label_encoder,
+                val_generator,
+                learning_params,
+                error_plotter,
+                device=args.device
+            )
+        else:
+            evaluate_mdn_model(
+                model,
+                label_encoder,
+                val_generator,
+                learning_params,
+                error_plotter,
+                device=args.device
+            )
 
 
 if __name__ == "__main__":
 
     args = parse_args(
-        robot='sim_ur',
+        robot='ur',
         sensor='tactip',
         tasks=['edge_2d'],
         train_dirs=['train_shear'],
         val_dirs=['val_shear'],
-        models=['simple_cnn'],
+        # models=['simple_cnn'],
+        models=["simple_cnn_mdn_jl"],
         model_version=[''],
         device='cpu'
     )
