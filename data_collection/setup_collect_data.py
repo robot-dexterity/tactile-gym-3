@@ -121,9 +121,9 @@ def setup_env_params(robot, task, save_dir=None):
         stim_name = 'square'
         stim_pose = (600, 0, 12.5, 0, 0, 0)
         work_frame_dict = {
-            'sim': (650, 0,  50, -180, 0, 90),
+            f'sim': (650, 0,  50, -180, 0, 90),
             'ur':  (0, -451, 54, -180, 0, 0),
-            'mg400': (374, 15, -125, 0, 0, 0)
+            'mg400': (374, 15, -125, 0, 0, 0),
         }
         tcp_pose_dict = {
             'sim': (0, 0, -85, 0, 0, 0),

@@ -29,6 +29,9 @@ def setup_embodiment(
         else:
             sensor = RealSensor(sensor_params)
         robot.speed = env_params.get('speed', float('inf'))
+        robot.controller.servo_delay = env_params.get('servo_delay', 0.0)
+        robot.coord_frame = env_params['work_frame']
+        robot.tcp = env_params['tcp_pose']
 
     # setup real robot
     else:

@@ -94,7 +94,7 @@ if __name__ == "__main__":
         val_dirs=['val_shear'],
         models=['pix2pix_128'],
         # model_version=['']
-        device="cuda"
+        device="cpu"
     )
 
     launch(args)

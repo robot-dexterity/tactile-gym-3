@@ -223,7 +223,10 @@ class shPix2PixGeneratorUNet(nn.Module):
         xshape = x.shape
         x = torch.flatten(x, start_dim=1)
         x = torch.cat((x, shear), dim=1)
-        x = self.fc(x)
+        try:
+            x = self.fc(x)
+        except:
+            raise(BaseException("..todo: The FC linear layer is the wrong size - change it in init."))
         x = x.unsqueeze(2).unsqueeze(3)
         x = torch.reshape(x, xshape)
         x = nn.ReLU(inplace=True)(x)
