@@ -3,7 +3,7 @@ import cv2
 import torch
 from utils.process_data.process_image_data import process_image_data
 from data_collection.setup_collect_data import setup_collect_data
-from learning.supervised.image_to_feature.utils.parse_args import parse_args
+from learning.supervised.image_to_image.utils.parse_args import parse_args
 from learning.supervised.image_to_image.supervised.models import create_model
 from learning.supervised.image_to_image.utils.utils_learning import seed_everything
 from learning.supervised.image_to_feature.learning.setup_training import setup_training
@@ -56,7 +56,7 @@ def load_posenet(args):
         in_channels=1,
         out_dim=label_encoder.out_dim,
         model_params=model_params,
-        saved_model_dir="./my_models/mg400_tactip_posenet_mdn/simple_cnn_mdn_jl",
+        saved_model_dir="../../my_models/mg400_tactip_posenet_mdn/simple_cnn_mdn_jl",
         device=args.device
     )
     model.eval()
@@ -93,7 +93,7 @@ def launch(model, label_encoder, args):
                      "exposure": -7,
                      "gray": True,
                      "bbox": [110, 0, 550, 440]},
-                    sim_sensor=False
+                     # sim_sensor=False
                 )
             print("ROBOT EMBODIED!")
 

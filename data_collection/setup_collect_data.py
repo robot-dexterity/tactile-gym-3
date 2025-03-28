@@ -4,13 +4,13 @@ import numpy as np
 from utils.utils import save_json_obj
 
 SPHERE_LABEL_NAMES = [
-    '2mm', '3mm', '4mm', 
-    '5mm', '6mm', '7mm', 
+    '2mm', '3mm', '4mm',
+    '5mm', '6mm', '7mm',
     '8mm', '9mm', '10mm',
 ]
 
 MIXED_LABEL_NAMES = [
-    'cone', 'cross_lines', 'curved_surface', 'cylinder', 'cylinder_shell', 'cylinder_side', 'dot_in', 
+    'cone', 'cross_lines', 'curved_surface', 'cylinder', 'cylinder_shell', 'cylinder_side', 'dot_in',
     'dots', 'flat_slab', 'hexagon', 'line', 'moon', 'pacman', 'parallel_lines',
     'prism', 'random', 'sphere', 'sphere2', 'torus', 'triangle', 'wave1'
 ]
@@ -34,7 +34,7 @@ def setup_sensor_image_params(robot, sensor, save_dir=None):
     else:
         sensor_image_params = {
             'type': sensor_type,
-            'source': 0,
+            'source': 1,
             'exposure': -7,
             'gray': True,
             'bbox': bbox_dict[sensor_type]
@@ -71,11 +71,11 @@ def setup_collect_params(robot, task, save_dir=None):
         "surface_3d": {'surface': (0, 0, 0, 0, 0, 0)},
         "edge_2d":    {'edge':    (0, 0, 0, 0, 0, 0)},
         "spheres_2d": {
-            SPHERE_LABEL_NAMES[3*i+j]: (60*(1-j), 60*(1-i), 0, 0, 0, -48) 
+            SPHERE_LABEL_NAMES[3*i+j]: (60*(1-j), 60*(1-i), 0, 0, 0, -48)
             for i, j in np.ndindex(3, 3)
         },
         "mixed_2d":  {
-            MIXED_LABEL_NAMES[7*i+j]: (25*(i-1), 25*(3-j), 0, 0, 0, 0) 
+            MIXED_LABEL_NAMES[7*i+j]: (25*(i-1), 25*(3-j), 0, 0, 0, 0)
             for i, j in np.ndindex(3, 7)
         }
     }
@@ -108,26 +108,28 @@ def setup_env_params(robot, task, save_dir=None):
     # pick the correct stimuli dependent on the task
     if 'surface' in task:
         stim_name = 'square'
-        stim_pose = (650, 0, 12.5, 0, 0, 0) 
+        stim_pose = (650, 0, 12.5, 0, 0, 0)
         work_frame_dict = {
             'sim': (650, 0,  50, -180, 0, 90),
             'ur':  (0, -500, 54, -180, 0, 0)
-        }  
+        }
         tcp_pose_dict = {
             'sim': (0, 0, -85, 0, 0, 0),
             'ur':  (0, 0, 101, 0, 0, 0)
-        }  
+        }
     if 'edge' in task:
         stim_name = 'square'
-        stim_pose = (600, 0, 12.5, 0, 0, 0) 
+        stim_pose = (600, 0, 12.5, 0, 0, 0)
         work_frame_dict = {
             'sim': (650, 0,  50, -180, 0, 90),
-            'ur':  (0, -451, 54, -180, 0, 0)
-        } 
+            'ur':  (0, -451, 54, -180, 0, 0),
+            'mg400': (374, 15, -125, 0, 0, 0)
+        }
         tcp_pose_dict = {
             'sim': (0, 0, -85, 0, 0, 0),
-            'ur':  (0, 0, 101, 0, 0, 0)
-        }  
+            'ur':  (0, 0, 101, 0, 0, 0),
+            'mg400': (0, 0, 0, 0, 0, 0)
+        }
     if 'spheres' in task:
         stim_name = 'spherical_probes'
         stim_pose = (650, 0, 0, 0, 0, 0)
@@ -138,7 +140,7 @@ def setup_env_params(robot, task, save_dir=None):
         tcp_pose_dict = {
             'sim': (0, 0, -85, 0, 0, 0),
             'ur':  (0, 0, 88.5, 0, 0, 0)
-        }  
+        }
     if 'mixed' in task:
         stim_name = 'mixed_probes'
         stim_pose = (650, 0, 0, 0, 0, 0)
@@ -147,7 +149,7 @@ def setup_env_params(robot, task, save_dir=None):
         }
         tcp_pose_dict = {
             'sim':   (0, 0, -85, 0, 0, 0),
-        }  
+        }
     if 'alphabet' in task or 'arrows' in task:
         stim_name = 'static_keyboard'
         stim_pose = (600, 0, 0, 0, 0, 0)
@@ -158,7 +160,46 @@ def setup_env_params(robot, task, save_dir=None):
         tcp_pose_dict = {
             'sim':   (0, 0, -85, 0, 0, 0),
             'ur':  (0, 0, 125, 0, 0, 0)
-        } 
+        }
+    if task == 'tap_shear_surface':
+        stim_name = 'square'
+        stim_pose = (600, 0, 12.5, 0, 0, 0)
+        work_frame_dict = {
+            'sim': (600, 0,  50, -180, 0, 90), #This puts the end effector in the center of the stim
+            'ur':  (0, -451, 54, -180, 0, 0),
+            'mg400': (318, 15, -125, 0, 0, 0)
+        }
+        tcp_pose_dict = {
+            'sim': (0, 0, -85, 0, 0, 0),
+            'ur':  (0, 0, 101, 0, 0, 0),
+            'mg400': (0, 0, 0, 0, 0, 0)
+        }
+    if task == 'tap_shear_edge':
+        stim_name = 'square'
+        stim_pose = (600, 0, 12.5, 0, 0, 0)
+        work_frame_dict = {
+            'sim': (650, 0, 50, -180, 0, 90),  # This puts the end effector in the center of the TOP EDGE of the stim
+            'ur':  (0, -451, 54, -180, 0, 0),
+            'mg400': (368, 15, -125, 0, 0, 0)
+        }
+        tcp_pose_dict = {
+            'sim': (0, 0, -85, 0, 0, 0),
+            'ur':  (0, 0, 101, 0, 0, 0),
+            'mg400': (0, 0, 0, 0, 0, 0)
+        }
+    if task == 'tap_shear_surface_deep':
+        stim_name = 'square'
+        stim_pose = (600, 0, 12.5, 0, 0, 0)
+        work_frame_dict = {
+            'sim': (600, 0,  50, -180, 0, 90), #This puts the end effector in the center of the stim
+            'ur':  (0, -451, 54, -180, 0, 0),
+            'mg400': (318, 15, -126, 0, 0, 0)
+        }
+        tcp_pose_dict = {
+            'sim': (0, 0, -85, 0, 0, 0),
+            'ur':  (0, 0, 101, 0, 0, 0),
+            'mg400': (0, 0, 0, 0, 0, 0)
+        }
 
     env_params = {
         'robot': robot,

@@ -15,7 +15,8 @@ from utils.simple_sensors import SimSensor, RealSensor, ReplaySensor
 
 def setup_embodiment(
     env_params={},
-    sensor_params={}
+    sensor_params={},
+    sim_sensor=True
 ):
     env_params['stim_path'] = os.path.join(os.path.dirname(__file__), 'stimuli')
 
@@ -23,26 +24,30 @@ def setup_embodiment(
     if 'sim' in env_params['robot']:
         embodiment = setup_pybullet_env(**env_params, **sensor_params)
         robot = SyncRobot(SimController(embodiment.arm))
-        sensor = SimSensor(sensor_params, embodiment)
+        if sim_sensor:
+            sensor = SimSensor(sensor_params, embodiment)
+        else:
+            sensor = RealSensor(sensor_params)
         robot.speed = env_params.get('speed', float('inf'))
 
     # setup real robot
     else:
-        robot = SyncRobot(Controller[env_params['robot']]())
+        # robot = SyncRobot(Controller[env_params['robot']]())
+        # robot.controller.servo_delay = env_params.get('servo_delay', 0.0)
+        # robot.coord_frame = env_params['work_frame']
+        # robot.tcp = env_params['tcp_pose']
+        # robot.speed = env_params.get('speed', 10)
         sensor = RealSensor(sensor_params)
-        robot.speed = env_params.get('speed', 10)
+        robot = None
 
     # if replay overwrite sensor
     if sensor_params['type'] == 'replay':
         sensor = ReplaySensor(sensor_params)
 
     # settings
-    robot.controller.servo_delay = env_params.get('servo_delay', 0.0)
-    robot.coord_frame = env_params['work_frame']
-    robot.tcp = env_params['tcp_pose']
+
 
     return robot, sensor
-
 
 def setup_pybullet_env(
     embodiment_type='tactile_arm',
@@ -50,7 +55,7 @@ def setup_pybullet_env(
     sensor_type='standard_tactip',
     image_size=(128, 128),
     show_tactile=False,
-    stim_name='square',
+    stim_name='circle',
     stim_path=os.path.dirname(__file__),
     stim_pose=(600, 0, 12.5, 0, 0, 0),
     show_gui=True,
@@ -106,14 +111,12 @@ def setup_pybullet_env(
 if __name__ == '__main__':
 
     env_params = {
-        'robot': 'sim',
-        # 'stim_name': 'square',
-        'stim_name': 'static_keyboard',
+        'robot': 'sim_ur',
+        'stim_name': 'mixed_probe_shan',
         'speed': 50,
         'work_frame': (600, 0, 200, 0, 0, 0),
         'tcp_pose': (600, 0, 0, 0, 0, 0),
-        'stim_pose': (600, 82.5, 0, 0, 0, 0),
-        # 'stim_pose': (600, 0, 12.5, 0, 0, 0),
+        'stim_pose': (600, 0, 0, 0, 0, 0),
         'show_gui': True
     }
 
