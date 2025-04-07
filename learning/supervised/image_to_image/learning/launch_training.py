@@ -4,8 +4,8 @@ python launch_training.py -i ur_tactip -o sim_tactip -t edge_2d -m pix2pix_128 -
 import os
 import itertools as it
 
-INPUT_DATA_PATH = "../../../../../tactile_data/data/tactile_sim2real/"
-TARGET_DATA_PATH = "../../../../../tactile_data/data/tactile_sim2real/"
+INPUT_DATA_PATH = "../tactile-data/data/tactile_sim2real/"
+TARGET_DATA_PATH = "../tactile-data/data/tactile_sim2real/"
 BASE_MODEL_PATH = ""
 
 from utils.utils import make_dir

@@ -4,7 +4,7 @@ python launch_training.py -r sim -s tactip -m simple_cnn -t edge_2d
 import os
 import itertools as it
 
-BASE_DATA_PATH = "../../../../../tactile_data/data/tactile_sim2real/"
+BASE_DATA_PATH = "../tactile-data/data/tactile_sim2real/"
 BASE_MODEL_PATH = ""
 
 from utils.utils import make_dir

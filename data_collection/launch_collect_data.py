@@ -5,7 +5,7 @@ import os
 import itertools as it
 import pandas as pd
 
-INPUT_DATA_PATH = "../../tactile_data/data/tactile_servo_control/"
+INPUT_DATA_PATH = "../tactile-data/data/tactile_servo_control/"
 TARGET_DATA_PATH = ""
 
 from data_collection.collect_data.collect_data import collect_data
