@@ -31,16 +31,26 @@ This repo refers to the paper "*Sim-to-real Deep Reinforcement Learning for Comp
 
 
 ### Installation ###
-This repo has only been developed and tested with Ubuntu 18.04 and python 3.8.
+This repo has only been developed and tested with Ubuntu 18.04 and python 3.10.
 
+Clone the repository:
 ```console
 git clone https://github.com/dexterousrobot/tactile_gym
 cd tactile_gym
+```
+
+To create a conda environment (recommended)
+```
+conda env create -n tactile_gym python=3.10
+conda activate tactile_gym
+```
+
+To install dependencies:
+```console
 pip install -e .
 ```
 
 Demonstration files are provided in the example directory. From the base directory run
-
 ```
 python examples/demo_env.py -env example_arm-v0
 ```
