@@ -50,6 +50,15 @@ To install dependencies:
 pip install -e .
 ```
 
+You will also need to install the [Common Robot Interface](https://github.com/robot-dexterity/common-robot-interface), with e.g.:
+```console
+cd ..
+git clone https://github.com/robot-dexterity/common-robot-interface
+cd common-robot-interface
+pip install -e .
+cd ../tactile-gym-3/
+```
+
 Demonstration files are provided in the example directory. From the base directory run
 ```
 python examples/demo_env.py -env example_arm-v0
