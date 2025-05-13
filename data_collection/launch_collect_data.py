@@ -5,7 +5,8 @@ import os
 import itertools as it
 import pandas as pd
 
-BASE_DATA_PATH = "./tactile_data"
+INPUT_DATA_PATH = "../tactile-data/data/tactile_servo_control/"
+TARGET_DATA_PATH = ""
 
 from data_collection.collect_data.collect_data import collect_data
 from data_collection.collect_data.setup_targets import setup_targets
@@ -25,7 +26,7 @@ def launch(args):
         for args.data_dir, args.sample_num in zip(args.data_dirs, args.sample_nums):
 
             # setup save dir
-            save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.task, args.data_dir)
+            save_dir = os.path.join(TARGET_DATA_PATH, output_dir, args.task, args.data_dir)
             image_dir = os.path.join(save_dir, "sensor_images")
             make_dir(save_dir)
             make_dir(image_dir)
@@ -46,7 +47,7 @@ def launch(args):
 
             if args.input:
                 # load and save targets to collect
-                load_dir = os.path.join(BASE_DATA_PATH, args.input, args.task, args.data_dir)
+                load_dir = os.path.join(INPUT_DATA_PATH, args.input, args.task, args.data_dir)
                 collect_params = load_json_obj(os.path.join(load_dir, 'collect_params'))              
                 target_df = pd.read_csv(os.path.join(load_dir, 'targets_images.csv'))
 
@@ -77,7 +78,7 @@ def process_images(args, image_params, split=None):
     output_dir = '_'.join([args.robot, args.sensor])
 
     for args.task in args.tasks:
-        path = os.path.join(BASE_DATA_PATH, output_dir, args.task)
+        path = os.path.join(TARGET_DATA_PATH, output_dir, args.task)
 
         dir_names = partition_data(path, args.data_dirs, split)
         process_image_data(path, dir_names, image_params)
@@ -87,7 +88,7 @@ if __name__ == "__main__":
 
     args = parse_args(
         inputs=['cr_tactip'],
-        robot='sim_cr',
+        robot='sim_ur',
         sensor='tactip',
         tasks=['edge_2d'],
         data_dirs=['train_data', 'val_data'],
