@@ -13,7 +13,7 @@ from learning.supervised.image_to_image.utils.utils_learning import get_lr
 from learning.supervised.image_to_image.utils.utils_learning import make_dir
 
 import matplotlib
-matplotlib.use("TkAgg")
+# matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 
 def train_shpix2pix(

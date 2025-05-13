@@ -22,7 +22,7 @@ from learning.supervised.image_to_feature.utils.parse_args import parse_args
 from learning.supervised.image_to_image.supervised.train_mdn_model import train_mdn_model
 
 import matplotlib
-matplotlib.use("TkAgg")
+# matplotlib.use('agg')
 
 def launch(args):
 

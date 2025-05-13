@@ -18,7 +18,7 @@ from learning.reinforcement.sb3_helpers.custom.custom_callbacks import (
 )
 
 import matplotlib
-matplotlib.use("TkAgg")
+# matplotlib.use("TkAgg")
 
 
 def train_agent(
