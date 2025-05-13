@@ -1,0 +1,1 @@
+{"pose_llims": [0, 0, 2.5, -15, -15, 0], "pose_ulims": [0, 0, 5.5, 15, 15, 0], "shear_llims": [-5, -5, 0, -5, -5, -5], "shear_ulims": [5, 5, 0, 5, 5, 5], "object_poses": {"surface": [0, 0, 0, 0, 0, 0]}, "sample_disk": false, "sort": false}
