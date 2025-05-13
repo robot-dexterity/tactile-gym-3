@@ -4,8 +4,7 @@ python launch_training.py -r sim -s tactip -m simple_cnn -t edge_2d
 import os
 import itertools as it
 
-BASE_DATA_PATH = "../tactile-data/data/tactile_sim2real/"
-BASE_MODEL_PATH = ""
+BASE_DATA_PATH = "./tactile_data"
 
 from utils.utils import make_dir
 from learning.supervised.image_to_image.supervised.image_generator import ImageDataGenerator
@@ -41,7 +40,7 @@ def launch(args):
         ]
 
         # setup save dir
-        save_dir = os.path.join(BASE_MODEL_PATH, output_dir, args.task, model_dir_name)
+        save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.task, model_dir_name)
         make_dir(save_dir)
 
         # setup parameters
@@ -135,7 +134,7 @@ if __name__ == "__main__":
         # models=['simple_cnn'],
         models=["simple_cnn_mdn_jl"],
         model_version=[''],
-        device='cpu'
+        device='cuda'
     )
 
     launch(args)

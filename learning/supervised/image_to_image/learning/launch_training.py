@@ -4,9 +4,7 @@ python launch_training.py -i ur_tactip -o sim_tactip -t edge_2d -m pix2pix_128 -
 import os
 import itertools as it
 
-INPUT_DATA_PATH = "../tactile-data/data/tactile_sim2real/"
-TARGET_DATA_PATH = "../tactile-data/data/tactile_sim2real/"
-BASE_MODEL_PATH = ""
+BASE_DATA_PATH = "./tactile_data"
 
 from utils.utils import make_dir
 from learning.supervised.image_to_image.pix2pix.image_generator import shPix2PixImageGenerator
@@ -21,16 +19,16 @@ from learning.supervised.image_to_image.utils.parse_args import parse_args
 def launch(args):
 
     input_train_data_dirs = [
-        os.path.join(INPUT_DATA_PATH, *i) for i in it.product(args.inputs, args.tasks, args.train_dirs)
+        os.path.join(BASE_DATA_PATH, *i) for i in it.product(args.inputs, args.tasks, args.train_dirs)
     ]
     target_train_data_dirs = [
-        os.path.join(TARGET_DATA_PATH, *i) for i in it.product(args.targets, args.tasks, args.train_dirs)
+        os.path.join(BASE_DATA_PATH, *i) for i in it.product(args.targets, args.tasks, args.train_dirs)
     ]
     input_val_data_dirs = [
-        os.path.join(INPUT_DATA_PATH, *i) for i in it.product(args.inputs, args.tasks, args.val_dirs)
+        os.path.join(BASE_DATA_PATH, *i) for i in it.product(args.inputs, args.tasks, args.val_dirs)
     ]
     target_val_data_dirs = [
-        os.path.join(TARGET_DATA_PATH, *i) for i in it.product(args.targets, args.tasks, args.val_dirs)
+        os.path.join(BASE_DATA_PATH, *i) for i in it.product(args.targets, args.tasks, args.val_dirs)
     ]
 
     for args.model in args.models:
@@ -40,7 +38,7 @@ def launch(args):
         task_dir = "_".join(args.tasks)
 
         # setup save dir
-        save_dir = os.path.join(BASE_MODEL_PATH, output_dir, task_dir, model_dir_name)
+        save_dir = os.path.join(BASE_DATA_PATH, output_dir, task_dir, model_dir_name)
         make_dir(save_dir)
 
         # setup parameters
@@ -94,7 +92,7 @@ if __name__ == "__main__":
         val_dirs=['val_shear'],
         models=['pix2pix_128'],
         # model_version=['']
-        device="cpu"
+        device="cuda"
     )
 
     launch(args)
