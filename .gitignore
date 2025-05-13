@@ -24,4 +24,4 @@ lib64
 uv.lock
 /.venv/
 __pycache__/
-
+/tactile_data/
