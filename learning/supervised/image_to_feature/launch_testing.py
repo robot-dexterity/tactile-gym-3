@@ -165,8 +165,8 @@ if __name__ == "__main__":
     args = parse_args(
         robot='ur',
         sensor='tactip',
-        tasks=['edge_2d'],
-        train_dirs=['train_shear'],
+        tasks=['edge_2d_shear'],
+        train_dirs=['train'],
         models=['simple_cnn'],
         model_version=[''],
         sample_nums=[100],

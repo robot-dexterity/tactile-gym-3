@@ -6,14 +6,10 @@ def parse_args(
         sensor='tactip',
         datasets=['edge_2d'],
         tasks=['servo_edge_2d'],
-        data_dirs=['train', 'val'],
-        sample_nums=[400, 100],
         train_dirs=['train'],
         val_dirs=['val'],
         models=['simple_cnn'],
         model_version=[],
-        objects=['circle'],
-        run_version=[],
         device='cuda'
 ):
     parser = argparse.ArgumentParser()
@@ -39,20 +35,8 @@ def parse_args(
     parser.add_argument(
         '-t', '--tasks',
         nargs='+',
-        help="Choose tasks from ['servo_edge_2d']",
+        help="Choose tasks from ['servo_2d', 'servo_3d', 'servo_5d', 'track_2d', 'track_3d', 'track_4d']",
         default=tasks
-    )
-    parser.add_argument(
-        '-dd', '--data_dirs',
-        nargs='+',
-        help="Specify data directories (default ['train', 'val']).",
-        default=data_dirs
-    )
-    parser.add_argument(
-        '-n', '--sample_nums',
-        type=int,
-        help="Choose numbers of samples (default [400, 100]).",
-        default=sample_nums
     )
     parser.add_argument(
         '-dt', '--train_dirs',
@@ -77,18 +61,6 @@ def parse_args(
         type=str,
         help="Choose version.",
         default=model_version
-    )
-    parser.add_argument(
-        '-o', '--objects',
-        nargs='+',
-        help="Choose objects from ['circle', 'square', 'clover', 'foil', 'saddle', 'bowl']",
-        default=objects
-    )
-    parser.add_argument(
-        '-rv', '--run_version',
-        type=str,
-        help="Choose version.",
-        default=run_version
     )
     parser.add_argument(
         '-d', '--device',

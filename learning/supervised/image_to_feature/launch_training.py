@@ -130,6 +130,8 @@ if __name__ == "__main__":
         tasks=['servo_2d'],
         models=['simple_cnn'],
         # models=["simple_cnn_mdn_jl"],
+        train_dirs=['train'],
+        val_dirs=['val'],
         model_version=[''],
         device='cuda'
     )
