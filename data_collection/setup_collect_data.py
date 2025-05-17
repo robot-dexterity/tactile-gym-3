@@ -46,50 +46,52 @@ def setup_sensor_image_params(robot, sensor, save_dir=None):
     return sensor_image_params
 
 
-def setup_collect_params(robot, task, save_dir=None):
+def setup_collect_params(robot, dataset, save_dir=None):
 
     if robot.split('_')[0] == 'sim':
         robot = 'sim'
 
     pose_lims_dict = {
-        'surface_3d': [(0, 0, 2.5, -15, -15, 0), (0, 0, 5.5, 15, 15, 0)],
-        'surface_shear_3d': [(0, 0, 2.5, -15, -15, 0), (0, 0, 5.5, 15, 15, 0)],
-        'edge_2d':    [(0, -6, 3, 0, 0, -180),   (0, 6, 5, 0, 0, 180)],
-        'edge_shear_2d':    [(0, -6, 3, 0, 0, -180),   (0, 6, 5, 0, 0, 180)],
-        'spheres_2d': [(-12.5, -12.5, 4, 0, 0, 0), (12.5, 12.5, 5, 0, 0, 0)],
-        'mixed_2d':   [(-5, -5, 4, 0, 0, 0),       (5, 5, 5, 0, 0, 0)],
+        'surface_2d_shear': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)],
+        'surface_3d':       [(0, 0, 2.5, -15, -15, 0), (0, 0, 5.5, 15, 15, 0)],
+        'surface_3d_shear': [(0, 0, 2.5, -15, -15, 0), (0, 0, 5.5, 15, 15, 0)],
+        'edge_2d':          [(0, -6, 3, 0, 0, -180),   (0, 6, 5, 0, 0, 180)],
+        'edge_2d_shear':    [(0, -6, 3, 0, 0, -180),   (0, 6, 5, 0, 0, 180)],
+        'spheres_2d':       [(-12.5, -12.5, 4, 0, 0, 0), (12.5, 12.5, 5, 0, 0, 0)],
+        'mixed_2d':         [(-5, -5, 4, 0, 0, 0),       (5, 5, 5, 0, 0, 0)],
     }
 
     shear_lims_dict = {
-        'surface_3d': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)],
-        'surface_shear_3d': [(-5, -5, 0, -5, -5, -5), (5, 5, 0, 5, 5, 5)],
-        'edge_2d':   [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)], # tap data
-        'edge_shear_2d':    [(-5, -5, 0, -5, -5, -5), (5, 5, 0, 5, 5, 5)],
-        'spheres_2d': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)],
-        'mixed_2d':   [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)],
+        'surface_2d_shear': [(-5, -5, 0, 0, 0, 0), (5, 5, 0, 0, 0, 0)],
+        'surface_3d':       [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)],
+        'surface_3d_shear': [(-5, -5, 0, -5, -5, -5), (5, 5, 0, 5, 5, 5)],
+        'edge_2d':          [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)],
+        'edge_2d_shear':    [(-5, -5, 0, -5, -5, -5), (5, 5, 0, 5, 5, 5)],
+        'spheres_2d':       [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)],
+        'mixed_2d':         [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)],
     }
 
     object_poses_dict = {
-        "surface_3d": {'surface': (0, 0, 0, 0, 0, 0)},
-        "surface_shear_3d": {'surface': (0, 0, 0, 0, 0, 0)},
-        "edge_2d":    {'edge':    (0, 0, 0, 0, 0, 0)},
-        "edge_shear_2d":    {'edge':    (0, 0, 0, 0, 0, 0)},
-        "spheres_2d": {
+        "surface_3d":       {'surface': (0, 0, 0, 0, 0, 0)},
+        "surface_3d_shear": {'surface': (0, 0, 0, 0, 0, 0)},
+        "edge_2d":          {'edge':    (0, 0, 0, 0, 0, 0)},
+        "edge_2d_shear":    {'edge':    (0, 0, 0, 0, 0, 0)},
+        "spheres_2d":       {
             SPHERE_LABEL_NAMES[3*i+j]: (60*(1-j), 60*(1-i), 0, 0, 0, -48)
             for i, j in np.ndindex(3, 3)
         },
-        "mixed_2d":  {
+        "mixed_2d":         {
             MIXED_LABEL_NAMES[7*i+j]: (25*(i-1), 25*(3-j), 0, 0, 0, 0)
             for i, j in np.ndindex(3, 7)
         }
     }
 
     collect_params = {
-        'pose_llims': pose_lims_dict[task][0],
-        'pose_ulims': pose_lims_dict[task][1],
-        'shear_llims': shear_lims_dict[task][0],
-        'shear_ulims': shear_lims_dict[task][1],
-        'object_poses': object_poses_dict[task],
+        'pose_llims': pose_lims_dict[dataset][0],
+        'pose_ulims': pose_lims_dict[dataset][1],
+        'shear_llims': shear_lims_dict[dataset][0],
+        'shear_ulims': shear_lims_dict[dataset][1],
+        'object_poses': object_poses_dict[dataset],
         'sample_disk': False,
         'sort': False,
         'seed': 0
@@ -104,13 +106,13 @@ def setup_collect_params(robot, task, save_dir=None):
     return collect_params
 
 
-def setup_env_params(robot, task, save_dir=None):
+def setup_env_params(robot, dataset, save_dir=None):
 
     if robot.split('_')[0] == 'sim':
         robot = 'sim'
 
-    # pick the correct stimuli dependent on the task
-    if 'surface' in task:
+    # pick the correct stimuli dependent on the dataset
+    if 'surface' in dataset:
         stim_name = 'square'
         stim_pose = (650, 0, 12.5, 0, 0, 0)
         work_frame_dict = {
@@ -121,11 +123,11 @@ def setup_env_params(robot, task, save_dir=None):
             'sim': (0, 0, -85, 0, 0, 0),
             'ur':  (0, 0, 101, 0, 0, 0)
         }
-    if 'edge' in task:
+    if 'edge' in dataset:
         stim_name = 'square'
         stim_pose = (600, 0, 12.5, 0, 0, 0)
         work_frame_dict = {
-            f'sim': (650, 0,  50, -180, 0, 90),
+            'sim': (650, 0,  50, -180, 0, 90),
             'ur':  (0, -451, 54, -180, 0, 0),
             'mg400': (374, 15, -125, 0, 0, 0),
         }
@@ -134,7 +136,7 @@ def setup_env_params(robot, task, save_dir=None):
             'ur':  (0, 0, 101, 0, 0, 0),
             'mg400': (0, 0, 0, 0, 0, 0)
         }
-    if 'spheres' in task:
+    if 'spheres' in dataset:
         stim_name = 'spherical_probes'
         stim_pose = (650, 0, 0, 0, 0, 0)
         work_frame_dict = {
@@ -145,7 +147,7 @@ def setup_env_params(robot, task, save_dir=None):
             'sim': (0, 0, -85, 0, 0, 0),
             'ur':  (0, 0, 88.5, 0, 0, 0)
         }
-    if 'mixed' in task:
+    if 'mixed' in dataset:
         stim_name = 'mixed_probes'
         stim_pose = (650, 0, 0, 0, 0, 0)
         work_frame_dict = {
@@ -154,7 +156,7 @@ def setup_env_params(robot, task, save_dir=None):
         tcp_pose_dict = {
             'sim':   (0, 0, -85, 0, 0, 0),
         }
-    if 'alphabet' in task or 'arrows' in task:
+    if 'alphabet' in dataset or 'arrows' in dataset:
         stim_name = 'static_keyboard'
         stim_pose = (600, 0, 0, 0, 0, 0)
         work_frame_dict = {
@@ -165,7 +167,7 @@ def setup_env_params(robot, task, save_dir=None):
             'sim':   (0, 0, -85, 0, 0, 0),
             'ur':  (0, 0, 125, 0, 0, 0)
         }
-    if task == 'tap_shear_surface':
+    if dataset == 'tap_shear_surface':
         stim_name = 'square'
         stim_pose = (600, 0, 12.5, 0, 0, 0)
         work_frame_dict = {
@@ -178,7 +180,7 @@ def setup_env_params(robot, task, save_dir=None):
             'ur':  (0, 0, 101, 0, 0, 0),
             'mg400': (0, 0, 0, 0, 0, 0)
         }
-    if task == 'tap_shear_edge':
+    if dataset == 'tap_shear_edge':
         stim_name = 'square'
         stim_pose = (600, 0, 12.5, 0, 0, 0)
         work_frame_dict = {
@@ -191,7 +193,7 @@ def setup_env_params(robot, task, save_dir=None):
             'ur':  (0, 0, 101, 0, 0, 0),
             'mg400': (0, 0, 0, 0, 0, 0)
         }
-    if task == 'tap_shear_surface_deep':
+    if dataset == 'tap_shear_surface_deep':
         stim_name = 'square'
         stim_pose = (600, 0, 12.5, 0, 0, 0)
         work_frame_dict = {
@@ -223,9 +225,9 @@ def setup_env_params(robot, task, save_dir=None):
     return env_params
 
 
-def setup_collect_data(robot, sensor, task, save_dir=None):
+def setup_collect_data(robot, sensor, dataset, save_dir=None):
     sensor_image_params = setup_sensor_image_params(robot, sensor, save_dir)
-    env_params = setup_env_params(robot, task, save_dir)
+    env_params = setup_env_params(robot, dataset, save_dir)
 
     return env_params, sensor_image_params
 

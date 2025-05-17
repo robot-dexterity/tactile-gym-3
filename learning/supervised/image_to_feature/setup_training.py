@@ -218,21 +218,12 @@ def setup_model_labels(task_name, data_dirs, save_dir=None):
     """
 
     target_label_names_dict = {
-        'surface_3d': ['pose_z', 'pose_Rx', 'pose_Ry'],
-        'surface_shear_2d': ['shear_x', 'shear_y'],
-        'edge_2d':    ['pose_y', 'pose_z', 'pose_Rz'],
-        'edge_shear_2d':    ['pose_z', 'shear_x', 'shear_y', 'shear_Rz'],
-        'edge_3d':    ['pose_x', 'pose_z', 'pose_Rz'],
-        'edge_5d':    ['pose_x', 'pose_z', 'pose_Rx', 'pose_Ry', 'pose_Rz'],
-    }
-
-    target_weights_dict = {
-        'surface_3d': [1, 1, 1],
-        'surface_shear_2d': [1, 1],
-        'edge_2d':    [1, 1, 1],
-        'edge_shear_2d':    [1, 1, 1, 1],
-        'edge_3d':    [1, 1, 1],
-        'edge_5d':    [1, 1, 1, 1, 1],
+        'track_2d': ['shear_x', 'shear_y'],
+        'track_3d': ['shear_x', 'shear_y', 'shear_Rz'],
+        'track_4d': ['pose_z', 'shear_x', 'shear_y', 'shear_Rz'],
+        'servo_2d': ['pose_y', 'pose_Rz'],
+        'servo_3d': ['pose_z', 'pose_Rx', 'pose_Ry'],
+        'servo_5d': ['pose_x', 'pose_z', 'pose_Rx', 'pose_Ry', 'pose_Rz'],
     }
 
     # get data limits from training data
@@ -244,7 +235,7 @@ def setup_model_labels(task_name, data_dirs, save_dir=None):
 
     model_label_params = {
         'target_label_names': target_label_names_dict[task_name],
-        'target_weights': target_weights_dict[task_name],
+        'target_weights': len(target_label_names_dict[task_name]) * [1.0],
         'label_names': [*POSE_LABEL_NAMES, *SHEAR_LABEL_NAMES],
         'llims': tuple(np.min(llims, axis=0).astype(float)),
         'ulims': tuple(np.max(ulims, axis=0).astype(float)),

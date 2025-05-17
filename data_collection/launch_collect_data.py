@@ -21,11 +21,11 @@ def launch(args):
 
     output_dir = '_'.join([args.robot, args.sensor])
 
-    for args.task, args.input in it.product(args.tasks, args.inputs):
+    for args.dataset, args.input in it.product(args.datasets, args.inputs):
         for args.data_dir, args.sample_num in zip(args.data_dirs, args.sample_nums):
 
             # setup save dir
-            save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.task, args.data_dir)
+            save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.data_dir)
             image_dir = os.path.join(save_dir, "sensor_images")
             make_dir(save_dir)
             make_dir(image_dir)
@@ -34,7 +34,7 @@ def launch(args):
             env_params, sensor_params = setup_collect_data(
                 args.robot,
                 args.sensor,
-                args.task,
+                args.dataset,
                 save_dir
             )
 
@@ -46,7 +46,7 @@ def launch(args):
 
             if args.input:
                 # load and save targets to collect
-                load_dir = os.path.join(BASE_DATA_PATH, args.input, args.task, args.data_dir)
+                load_dir = os.path.join(BASE_DATA_PATH, args.input, args.dataset, args.data_dir)
                 collect_params = load_json_obj(os.path.join(load_dir, 'collect_params'))              
                 target_df = pd.read_csv(os.path.join(load_dir, 'targets_images.csv'))
 
@@ -55,7 +55,7 @@ def launch(args):
 
             else:
                 # setup targets to collect
-                collect_params = setup_collect_params(args.robot, args.task, save_dir)
+                collect_params = setup_collect_params(args.robot, args.dataset, save_dir)
                 target_df = setup_targets(
                     collect_params,
                     args.sample_num,
@@ -76,8 +76,8 @@ def process(args, image_params, split=None):
 
     output_dir = '_'.join([args.robot, args.sensor])
 
-    for args.task in args.tasks:
-        path = os.path.join(BASE_DATA_PATH, output_dir, args.task)
+    for args.dataset in args.datasets:
+        path = os.path.join(BASE_DATA_PATH, output_dir, args.dataset)
 
         dir_names = partition_data(path, args.data_dirs, split)
         process_image_data(path, dir_names, image_params)
@@ -89,8 +89,8 @@ if __name__ == "__main__":
         inputs=['ur_tactip'],
         robot='sim',
         sensor='tactip',
-        tasks=['edge_2d'],
-        data_dirs=['train_shear', 'val_shear'],
+        datasets=['edge_2d_shear'],
+        data_dirs=['train', 'val'],
         # sample_nums=[10]
     )
     launch(args)

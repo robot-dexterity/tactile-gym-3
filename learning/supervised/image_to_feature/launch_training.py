@@ -25,20 +25,20 @@ def launch(args):
 
     output_dir = '_'.join([args.robot, args.sensor])
 
-    for args.task, args.model in it.product(args.tasks, args.models):
+    for args.dataset, args.task, args.model in it.product(args.datasets, args.tasks, args.models):
 
         model_dir_name = '_'.join(filter(None, [args.model, *args.model_version]))
 
         # data dirs - list of directories combined in generator
         train_data_dirs = [
-            os.path.join(BASE_DATA_PATH, output_dir, args.task, d) for d in args.train_dirs
+            os.path.join(BASE_DATA_PATH, output_dir, args.dataset, d) for d in args.train_dirs
         ]
         val_data_dirs = [
-            os.path.join(BASE_DATA_PATH, output_dir, args.task, d) for d in args.val_dirs
+            os.path.join(BASE_DATA_PATH, output_dir, args.dataset, d) for d in args.val_dirs
         ]
 
         # setup save dir
-        save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.task, model_dir_name)
+        save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.task, model_dir_name)
         make_dir(save_dir)
 
         # setup parameters
@@ -126,9 +126,8 @@ if __name__ == "__main__":
     args = parse_args(
         robot='ur',
         sensor='tactip',
-        tasks=['edge_shear_2d'],
-        train_dirs=['train_shear'],
-        val_dirs=['val_shear'],
+        datasets=['edge_2d_shear'],
+        tasks=['servo_2d'],
         models=['simple_cnn'],
         # models=["simple_cnn_mdn_jl"],
         model_version=[''],

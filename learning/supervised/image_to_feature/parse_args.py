@@ -4,7 +4,8 @@ import argparse
 def parse_args(
         robot='sim',
         sensor='tactip',
-        tasks=['edge_2d'],
+        datasets=['edge_2d'],
+        tasks=['servo_edge_2d'],
         data_dirs=['train', 'val'],
         sample_nums=[400, 100],
         train_dirs=['train'],
@@ -20,7 +21,7 @@ def parse_args(
     parser.add_argument(
         '-r', '--robot',
         type=str,
-        help="Choose robot from ['sim', 'mg400', 'cr']",
+        help="Choose robot from ['sim', 'mg400', 'cr', 'ur']",
         default=robot
     )
     parser.add_argument(
@@ -30,9 +31,15 @@ def parse_args(
         default=sensor
     )
     parser.add_argument(
+        '-ds', '--datasets',
+        nargs='+',
+        help="Choose datasets from ['edge_2d', 'edge_2d_shear', 'surface_3d', 'surface_3d_shear', 'spherical_probe']",
+        default=datasets
+    )
+    parser.add_argument(
         '-t', '--tasks',
         nargs='+',
-        help="Choose tasks from ['surface_3d', 'edge_2d', 'edge_3d', 'edge_5d']",
+        help="Choose tasks from ['servo_edge_2d']",
         default=tasks
     )
     parser.add_argument(
