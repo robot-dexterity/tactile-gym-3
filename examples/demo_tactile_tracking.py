@@ -1,15 +1,15 @@
 import itertools as it
 import cv2
 import torch
-from utils.process_data.process_image_data import process_image_data
+from data_collection.process_data.process_image_data import process_image_data
 from data_collection.setup_collect_data import setup_collect_data
-from learning.supervised.image_to_image.utils.parse_args import parse_args
+from learning.supervised.image_to_image.parse_args import parse_args
 from learning.supervised.image_to_image.supervised.models import create_model
-from learning.supervised.image_to_image.utils.utils_learning import seed_everything
+from learning.supervised.image_to_image.utils_learning.utils_learning import seed_everything
 from learning.supervised.image_to_feature.learning.setup_training import setup_training
 from learning.supervised.image_to_feature.utils.label_encoder import LabelEncoder
-from utils.image_transforms import process_image
-from utils.image_transforms import augment_image
+from data_collection.process_data.image_transforms import process_image
+from data_collection.process_data.image_transforms import augment_image
 import os
 import numpy as np
 from data_collection.collect_data.setup_embodiment import setup_embodiment
@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 import time
 import re
-from utils.dobot_api import DobotApiDashboard, DobotApiMove, DobotApi
+from examples.dobot_api import DobotApiDashboard, DobotApiMove, DobotApi
 
 # Robot IP address and ports
 ip = "192.168.1.6"  # Please modify the IP address according to the actual situation

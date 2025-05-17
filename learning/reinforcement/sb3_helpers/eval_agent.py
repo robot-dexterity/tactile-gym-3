@@ -7,7 +7,7 @@ import stable_baselines3 as sb3
 
 import learning.reinforcement.envs
 from learning.reinforcement.sb3_helpers.rl_utils import make_eval_env
-from learning.supervised.image_to_image.utils.utils_learning import load_json_obj
+from learning.supervised.image_to_image.utils_learning.utils_learning import load_json_obj
 
 
 def eval_and_save_vid(

@@ -5,16 +5,16 @@ import os
 import itertools as it
 import pandas as pd
 
-BASE_DATA_PATH = './tactile_data'
-
+from common.utils import make_dir, load_json_obj, save_json_obj
 from data_collection.collect_data.collect_data import collect_data
+from data_collection.collect_data.setup_embodiment import setup_embodiment
 from data_collection.collect_data.setup_targets import setup_targets
-from utils.process_data.process_image_data import process_image_data, partition_data
-from utils.utils import make_dir, load_json_obj, save_json_obj
+from data_collection.process_data.process_image_data import process_image_data, partition_data
 
 from data_collection.setup_collect_data import setup_collect_data, setup_collect_params
-from data_collection.collect_data.setup_embodiment import (setup_embodiment)
 from data_collection.parse_args import parse_args
+
+BASE_DATA_PATH = './tactile_data'
 
 
 def launch(args):
@@ -72,7 +72,7 @@ def launch(args):
             )
 
 
-def process_images(args, image_params, split=None):
+def process(args, image_params, split=None):
 
     output_dir = '_'.join([args.robot, args.sensor])
 
@@ -98,4 +98,4 @@ if __name__ == "__main__":
     image_params = {
         "bbox": (12, 12, 240, 240)  
     }
-    process_images(args, image_params)  # , split=0.8)
+    process(args, image_params)  # , split=0.8)

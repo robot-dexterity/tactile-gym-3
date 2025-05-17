@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-from utils.utils import save_json_obj
+from common.utils import save_json_obj
 
 SPHERE_LABEL_NAMES = [
     '2mm', '3mm', '4mm',
@@ -53,23 +53,27 @@ def setup_collect_params(robot, task, save_dir=None):
 
     pose_lims_dict = {
         'surface_3d': [(0, 0, 2.5, -15, -15, 0), (0, 0, 5.5, 15, 15, 0)],
+        'surface_shear_3d': [(0, 0, 2.5, -15, -15, 0), (0, 0, 5.5, 15, 15, 0)],
         'edge_2d':    [(0, -6, 3, 0, 0, -180),   (0, 6, 5, 0, 0, 180)],
+        'edge_shear_2d':    [(0, -6, 3, 0, 0, -180),   (0, 6, 5, 0, 0, 180)],
         'spheres_2d': [(-12.5, -12.5, 4, 0, 0, 0), (12.5, 12.5, 5, 0, 0, 0)],
         'mixed_2d':   [(-5, -5, 4, 0, 0, 0),       (5, 5, 5, 0, 0, 0)],
     }
 
     shear_lims_dict = {
-        'surface_3d': [(-5, -5, 0, -5, -5, -5), (5, 5, 0, 5, 5, 5)],
-        # 'surface_3d': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)], # tap data
-        'edge_2d':    [(-5, -5, 0, -5, -5, -5), (5, 5, 0, 5, 5, 5)],
-        # 'edge_2d':   [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)], # tap data
+        'surface_3d': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)],
+        'surface_shear_3d': [(-5, -5, 0, -5, -5, -5), (5, 5, 0, 5, 5, 5)],
+        'edge_2d':   [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)], # tap data
+        'edge_shear_2d':    [(-5, -5, 0, -5, -5, -5), (5, 5, 0, 5, 5, 5)],
         'spheres_2d': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)],
         'mixed_2d':   [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)],
     }
 
     object_poses_dict = {
         "surface_3d": {'surface': (0, 0, 0, 0, 0, 0)},
+        "surface_shear_3d": {'surface': (0, 0, 0, 0, 0, 0)},
         "edge_2d":    {'edge':    (0, 0, 0, 0, 0, 0)},
+        "edge_shear_2d":    {'edge':    (0, 0, 0, 0, 0, 0)},
         "spheres_2d": {
             SPHERE_LABEL_NAMES[3*i+j]: (60*(1-j), 60*(1-i), 0, 0, 0, -48)
             for i, j in np.ndindex(3, 3)

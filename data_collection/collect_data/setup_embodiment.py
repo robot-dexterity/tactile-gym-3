@@ -1,6 +1,8 @@
 import os
 import numpy as np
 
+from data_collection.collect_data.simple_sensors import SimSensor, RealSensor, ReplaySensor
+
 from tactile_sim.utils.setup_pb_utils import connect_pybullet, load_standard_environment
 from tactile_sim.utils.setup_pb_utils import load_stim, set_debug_camera
 from tactile_sim.utils.setup_pb_utils import simple_pb_loop
@@ -9,8 +11,6 @@ from tactile_sim.assets.default_rest_poses import rest_poses_dict
 
 from cri.robot import SyncRobot
 from cri.controller import SimController, Controller
-
-from utils.simple_sensors import SimSensor, RealSensor, ReplaySensor
 
 
 def setup_embodiment(
