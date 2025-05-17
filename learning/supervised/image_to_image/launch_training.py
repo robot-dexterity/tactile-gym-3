@@ -6,11 +6,10 @@ import itertools as it
 
 BASE_DATA_PATH = "./tactile_data"
 
-from common.utils import make_dir
+from common.utils import make_dir, seed_everything
 from learning.supervised.image_to_image.train_model.image_generator import shPix2PixImageGenerator
 from learning.supervised.image_to_image.train_model.models import create_model
 from learning.supervised.image_to_image.train_model.train_model import train_shpix2pix
-from learning.supervised.image_to_image.utils_learning.utils_learning import seed_everything
 
 from learning.supervised.image_to_image.setup_training import setup_training
 from learning.supervised.image_to_image.parse_args import parse_args
@@ -19,23 +18,23 @@ from learning.supervised.image_to_image.parse_args import parse_args
 def launch(args):
 
     input_train_data_dirs = [
-        os.path.join(BASE_DATA_PATH, *i) for i in it.product(args.inputs, args.tasks, args.train_dirs)
+        os.path.join(BASE_DATA_PATH, *i) for i in it.product(args.inputs, args.datasets, args.train_dirs)
     ]
     target_train_data_dirs = [
-        os.path.join(BASE_DATA_PATH, *i) for i in it.product(args.targets, args.tasks, args.train_dirs)
+        os.path.join(BASE_DATA_PATH, *i) for i in it.product(args.targets, args.datasets, args.train_dirs)
     ]
     input_val_data_dirs = [
-        os.path.join(BASE_DATA_PATH, *i) for i in it.product(args.inputs, args.tasks, args.val_dirs)
+        os.path.join(BASE_DATA_PATH, *i) for i in it.product(args.inputs, args.datasets, args.val_dirs)
     ]
     target_val_data_dirs = [
-        os.path.join(BASE_DATA_PATH, *i) for i in it.product(args.targets, args.tasks, args.val_dirs)
+        os.path.join(BASE_DATA_PATH, *i) for i in it.product(args.targets, args.datasets, args.val_dirs)
     ]
 
     for args.model in args.models:
 
         model_dir_name = '_'.join(filter(None, [args.model, *args.model_version]))
         output_dir = "_to_".join([*args.inputs, *args.targets])
-        task_dir = "_".join(args.tasks)
+        task_dir = "_".join(args.datasets)
 
         # setup save dir
         save_dir = os.path.join(BASE_DATA_PATH, output_dir, task_dir, model_dir_name)
@@ -87,12 +86,12 @@ if __name__ == "__main__":
     args = parse_args(
         inputs=['sim_ur_tactip'],
         targets=['ur_tactip'],
-        tasks=['edge_2d'],
-        train_dirs=['train_shear'],
-        val_dirs=['val_shear'],
+        datasets=['edge_2d_shear'],
+        train_dirs=['train'],
+        val_dirs=['val'],
         models=['pix2pix_128'],
         # model_version=['']
-        device="cuda"
+        device='cuda'
     )
 
     launch(args)

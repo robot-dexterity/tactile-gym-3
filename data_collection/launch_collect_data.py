@@ -87,11 +87,11 @@ if __name__ == "__main__":
 
     args = parse_args(
         inputs=['ur_tactip'],
-        robot='sim',
+        robot='sim_ur',
         sensor='tactip',
-        datasets=['edge_2d_shear'],
+        datasets=['edge_2d'],
         data_dirs=['train', 'val'],
-        # sample_nums=[10]
+        # sample_nums=[5000, 2000]
     )
     launch(args)
 

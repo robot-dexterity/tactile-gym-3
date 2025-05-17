@@ -89,20 +89,20 @@ def testing(args):
     output_dir = '_'.join([args.robot, args.sensor])
 
     # test the trained networks
-    for args.task, args.model, args.sample_num in it.product(args.tasks, args.models, args.sample_nums):
+    for args.dataset, args.task, args.model, args.sample_num in it.product(args.datasets, args.tasks, args.models, args.sample_nums):
 
         model_dir_name = '_'.join(filter(None, [args.model, *args.model_version]))
-        runs_dir_name = '_'.join(filter(None, [args.model, *args.run_version]))
+        runs_dir_name = '_'.join(filter(None, ['test', args.model, *args.model_version]))
 
         # setup save dir
-        save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.task, runs_dir_name)
+        save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.task, runs_dir_name)
         image_dir = os.path.join(save_dir, "processed_images")
         make_dir(save_dir)
         make_dir(image_dir)
 
         # set data and model dir
-        data_dir = os.path.join(BASE_DATA_PATH, output_dir, args.task, args.train_dirs[0])
-        model_dir = os.path.join(BASE_DATA_PATH, output_dir, args.task, model_dir_name)
+        data_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.train_dirs[0])
+        model_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.task, model_dir_name)
 
         # load params
         collect_params = load_json_obj(os.path.join(data_dir, 'collect_params'))
@@ -163,14 +163,13 @@ def testing(args):
 if __name__ == "__main__":
 
     args = parse_args(
-        robot='ur',
+        robot='sim_ur',
         sensor='tactip',
-        tasks=['edge_2d_shear'],
+        datasets=['edge_2d_shear'],
         train_dirs=['train'],
+        tasks=['servo_2d'],
         models=['simple_cnn'],
-        model_version=[''],
         sample_nums=[100],
-        run_version=[''],
         device='cuda'
     )
 

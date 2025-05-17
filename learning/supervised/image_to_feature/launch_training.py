@@ -124,12 +124,11 @@ def launch(args):
 if __name__ == "__main__":
 
     args = parse_args(
-        robot='ur',
+        robot='sim_ur',
         sensor='tactip',
         datasets=['edge_2d_shear'],
         tasks=['servo_2d'],
-        models=['simple_cnn'],
-        # models=["simple_cnn_mdn_jl"],
+        models=['simple_cnn','simple_cnn_mdn_jl'],
         train_dirs=['train'],
         val_dirs=['val'],
         model_version=[''],

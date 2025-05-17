@@ -4,7 +4,7 @@ import argparse
 def parse_args(
     robot='sim',
     sensor='tactip',
-    tasks=['edge_2d'],
+    datasets=['edge_2d_shear'],
     inputs=[''],
     data_dirs=['train', 'val'],
     sample_nums=[80, 20],
@@ -30,10 +30,10 @@ def parse_args(
         default=sensor
     )
     parser.add_argument(
-        '-t', '--tasks',
+        '-ds', '--datasets',
         nargs='+',
-        help="Choose tasks from ['surface_3d', 'edge_2d', 'spherical_probe']",
-        default=tasks
+        help="Choose datasets from ['surface_3d', 'edge_2d', 'spherical_probe']",
+        default=datasets
     )
     parser.add_argument(
         '-i', '--inputs',

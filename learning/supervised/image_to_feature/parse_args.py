@@ -5,11 +5,12 @@ def parse_args(
         robot='sim',
         sensor='tactip',
         datasets=['edge_2d'],
-        tasks=['servo_edge_2d'],
+        tasks=['servo_2d'],
         train_dirs=['train'],
         val_dirs=['val'],
         models=['simple_cnn'],
         model_version=[],
+        sample_nums=[100],
         device='cuda'
 ):
     parser = argparse.ArgumentParser()
@@ -61,6 +62,12 @@ def parse_args(
         type=str,
         help="Choose version.",
         default=model_version
+    )
+    parser.add_argument(
+        '-n', '--sample_nums',
+        type=int,
+        help="Choose numbers of samples (default [100]).",
+        default=sample_nums
     )
     parser.add_argument(
         '-d', '--device',

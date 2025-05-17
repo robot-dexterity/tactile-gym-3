@@ -2,6 +2,7 @@ import os
 import numpy as np
 from tqdm import tqdm
 import time
+import matplotlib.pyplot as plt
 
 import torch
 from torch.autograd import Variable
@@ -9,11 +10,8 @@ from torch.utils.tensorboard import SummaryWriter
 import torch.optim as optim
 from torchvision.utils import save_image, make_grid
 
-from learning.supervised.image_to_image.utils_learning.utils_learning import get_lr, make_dir
+from common.utils import get_lr, make_dir
 
-import matplotlib
-# matplotlib.use("TkAgg")
-import matplotlib.pyplot as plt
 
 def train_shpix2pix(
     generator,
