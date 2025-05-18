@@ -5,13 +5,14 @@ import itertools as it
 import pandas as pd
 import torch
 
+from common.utils import numpy_collate
 from learning.supervised.image_to_image.setup_training import setup_model_image
 from data_collection.process_data.image_transforms import process_image, augment_image
 
-BASE_DATA_PATH = "./tactile_data"
+BASE_DATA_PATH = './tactile_data'
 
 
-class shPix2PixImageGenerator(torch.utils.data.Dataset):
+class Image2ImageGenerator(torch.utils.data.Dataset):
     def __init__(
         self,
         input_data_dirs,
@@ -51,15 +52,14 @@ class shPix2PixImageGenerator(torch.utils.data.Dataset):
         self.input_label_df = self.load_data_dirs(input_data_dirs)
         self.target_label_df = self.load_data_dirs(target_data_dirs)
 
-        # We must transform shear values to make them rotation aware. Otherwise, shear values are inscrutable.
-        new_shear_x = (self.input_label_df['shear_x'] * np.cos(np.deg2rad(-self.input_label_df['pose_Rz']))) - (
-                self.input_label_df['shear_y'] * np.sin(np.deg2rad(-self.input_label_df['pose_Rz'])))
-        new_shear_y = (self.input_label_df['shear_x'] * np.sin(np.deg2rad(-self.input_label_df['pose_Rz']))) + (
-                self.input_label_df['shear_y'] * np.cos(np.deg2rad(-self.input_label_df['pose_Rz'])))
-        self.input_label_df.loc[:, "shear_x"] = new_shear_x
-        self.input_label_df.loc[:, "shear_y"] = new_shear_y
-        self.target_label_df.loc[:, "shear_x"] = new_shear_x
-        self.target_label_df.loc[:, "shear_y"] = new_shear_y
+        # for shpix2pix: transform shear values to make them rotation aware
+        Rz = np.deg2rad(-self.input_label_df['pose_Rz'])
+        shear_x = self.input_label_df['shear_x'] * np.cos(Rz) - self.input_label_df['shear_y'] * np.sin(Rz)
+        shear_y = self.input_label_df['shear_x'] * np.sin(Rz) + self.input_label_df['shear_y'] * np.cos(Rz)
+        self.input_label_df.loc[:, 'shear_x'] = shear_x
+        self.input_label_df.loc[:, 'shear_y'] = shear_y
+        self.target_label_df.loc[:, 'shear_x'] = shear_x
+        self.target_label_df.loc[:, 'shear_y'] = shear_y
 
     def load_data_dirs(self, data_dirs):
 
@@ -85,6 +85,7 @@ class shPix2PixImageGenerator(torch.utils.data.Dataset):
         full_df = pd.concat(df_list)
 
         return full_df
+
 
     def __len__(self):
         "Denotes the number of batches per epoch"
@@ -187,7 +188,7 @@ def demo_image_generation(
 ):
     # Configure dataloaders
     generator_args = {**image_processing_params, **augmentation_params}
-    generator = shPix2PixImageGenerator(
+    generator = Image2ImageGenerator(
         input_data_dirs=input_data_dirs,
         target_data_dirs=target_data_dirs,
         **generator_args
@@ -228,36 +229,13 @@ def demo_image_generation(
             if k == 27:    # Esc key to stop
                 exit()
 
-def numpy_collate(batch):
-    '''
-    Batch is list of len: batch_size
-    Each element is dict {images: ..., labels: ...}
-    Use Collate fn to ensure they are returned as np arrays.
-    '''
-    # list of arrays -> stacked into array
-    if isinstance(batch[0], np.ndarray):
-        return np.stack(batch)
-
-    # list of lists/tuples -> recursive on each element
-    elif isinstance(batch[0], (tuple, list)):
-        transposed = zip(*batch)
-        return [numpy_collate(samples) for samples in transposed]
-
-    # list of dicts -> recursive returned as dict with same keys
-    elif isinstance(batch[0], dict):
-        return {key: numpy_collate([d[key] for d in batch]) for key in batch[0]}
-
-    # list of non array element -> list of arrays
-    else:
-        return np.array(batch)
-
 
 if __name__ == '__main__':
 
     inputs=['ur_tactip']
     targets=['sim_ur_tactip']
-    tasks=['edge_2d']
-    data_dirs=['train_shear', 'val_shear']
+    tasks=['edge_2d_shear']
+    data_dirs=['train', 'val']
 
     learning_params = {
         'batch_size': 32,

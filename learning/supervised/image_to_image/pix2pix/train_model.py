@@ -13,7 +13,7 @@ from torchvision.utils import save_image, make_grid
 from common.utils import get_lr, make_dir
 
 
-def train_shpix2pix(
+def train_model(
     generator,
     discriminator,
     train_generator,
@@ -89,29 +89,6 @@ def train_shpix2pix(
     # for saving best models
     lowest_pixel_loss = np.inf
 
-    if debug:
-        plt.ion()
-        LOSS_DATA = []
-        VAL_LOSS_DATA = []
-        VAL_LOSS_DATA_X = []
-        fig, ax = plt.subplots(1, 4, figsize=(1, 1))
-        ax0 = ax[0].imshow(np.zeros((128, 128)), vmin=0, vmax=1)
-        ax[0].set_title("GAN Input (Sim TacTip)")
-        ax1 = ax[1].imshow(np.zeros((128, 128)), vmin=0, vmax=1)
-        ax[1].set_title("True Output (Real TacTip)")
-        ax2 = ax[2].imshow(np.zeros((128, 128)), vmin=0, vmax=1)
-        ax[2].set_title("GAN Output")
-        ax3, = ax[3].plot([], [], linewidth=0.25)
-        ax3val, = ax[3].plot([], [], linewidth=1, c="red")
-        ax[3].set_xlabel("Training Step")
-        ax[3].set_ylabel("Loss")
-        ax[3].set_xlim((0, 80 * 250 * 2 * 2))
-        # ax[3].set_ylim((0,0.25))
-        ax[3].set_ylim((0, .99))
-        ax[3].set_title("Pixel Loss")
-        plt.suptitle("ok")
-        frame_counter = 0
-
     # Main training loop
     with tqdm(total=learning_params['epochs']) as pbar:
         for epoch in range(1, learning_params['epochs'] + 1):
@@ -140,14 +117,16 @@ def train_shpix2pix(
                 optimizer_G.zero_grad()
 
                 # GAN loss
-                gen_images = generator(input_images, batch["shear"].to(device))
+                gen_images = generator(input_images)
                 pred_gen = discriminator(gen_images, input_images)
                 loss_GAN = criterion_GAN(pred_gen, valid)
 
-                # Generator losses
+                # Pixel-wise loss
                 loss_pixel = criterion_pixelwise(gen_images, target_images)
-                ssim_L = loss_pixel
-                loss_G = ssim_L
+
+                # Total loss
+                loss_G = (learning_params["lambda_gan"] * loss_GAN) + \
+                         (learning_params["lambda_pixel"] * loss_pixel)
 
                 loss_G.backward()
 
@@ -179,18 +158,6 @@ def train_shpix2pix(
                 epoch_loss_GAN.append(loss_GAN.item())
                 epoch_loss_pixel.append(loss_pixel.item())
 
-                if debug:
-                    LOSS_DATA.append(loss_G.item())
-                    if i >= 0:
-                        ax0.set_data(input_images.cpu()[0,0,:,:])
-                        ax1.set_data(target_images.cpu()[0,0,:,:])
-                        ax2.set_data(gen_images.detach().cpu().numpy()[0,0,:,:])
-                        plt.suptitle(f"GAN Training. Epoch {epoch}: Loss {np.round(np.mean(epoch_loss_GAN), 4)}")
-                        ax3.set_data(range(len(LOSS_DATA)), LOSS_DATA)
-                        fig.canvas.flush_events()
-                        plt.pause(0.01)
-                        frame_counter += 1
-
             # perform validation on single batch
             generator.eval()
             discriminator.eval()
@@ -200,18 +167,8 @@ def train_shpix2pix(
                 val_batch = next(iter(val_loader))
                 val_input_images = Variable(val_batch["input"]).float().to(device)
                 val_target_images = Variable(val_batch["target"]).float().to(device)
-                val_gen_images = generator(val_input_images, val_batch["shear"].to(device))
+                val_gen_images = generator(val_input_images)
                 val_loss_pixel.append(criterion_pixelwise(val_gen_images, val_target_images).item())
-                val_pix_loss = criterion_pixelwise(val_gen_images, val_target_images)#.item()
-                val_loss_G = val_pix_loss
-
-                val_loss_pixel.append(val_loss_G.item())
-                if debug:
-                    VAL_LOSS_DATA.append(np.mean(val_loss_pixel))
-                    VAL_LOSS_DATA_X.append(len(LOSS_DATA))
-                    ax3val.set_data(VAL_LOSS_DATA_X, VAL_LOSS_DATA)
-                    fig.canvas.flush_events()
-                    plt.pause(0.01)
 
             # save example images
             if epoch % learning_params['save_every'] == 0:
@@ -261,18 +218,12 @@ def train_shpix2pix(
             # track weights on tensorboard
             for name, weight in generator.named_parameters():
                 full_name = f'{os.path.basename(os.path.normpath(save_dir))}/generator/{name}'
-                try:
-                    writer.add_histogram(full_name, weight, epoch)
-                    writer.add_histogram(f'{full_name}.grad', weight.grad, epoch)
-                except:
-                    print(f"failed for {name}...")
+                writer.add_histogram(full_name, weight, epoch)
+                writer.add_histogram(f'{full_name}.grad', weight.grad, epoch)
             for name, weight in discriminator.named_parameters():
                 full_name = f'{os.path.basename(os.path.normpath(save_dir))}/discriminator/{name}'
-                try:
-                    writer.add_histogram(full_name, weight, epoch)
-                    writer.add_histogram(f'{full_name}.grad', weight.grad, epoch)
-                except:
-                    print(f"failed for {name}...")
+                writer.add_histogram(full_name, weight, epoch)
+                writer.add_histogram(f'{full_name}.grad', weight.grad, epoch)
 
             # save the model with lowest val loss
             if np.mean(val_loss_pixel) < lowest_pixel_loss:
@@ -295,6 +246,7 @@ def train_shpix2pix(
     # save final model
     torch.save(generator.state_dict(), os.path.join(save_dir, 'final_generator.pth'))
     torch.save(discriminator.state_dict(), os.path.join(save_dir, 'final_discriminator.pth'))
+
 
 if __name__ == "__main__":
     pass

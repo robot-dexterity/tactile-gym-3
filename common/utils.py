@@ -101,3 +101,27 @@ def is_json_serializable(v):
         return True
     except:
         return False
+
+
+def numpy_collate(batch):
+    '''
+    Batch is list of len: batch_size
+    Each element is dict {images: ..., labels: ...}
+    Use Collate fn to ensure they are returned as np arrays.
+    '''
+    # list of arrays -> stacked into array
+    if isinstance(batch[0], np.ndarray):
+        return np.stack(batch)
+
+    # list of lists/tuples -> recursive on each element
+    elif isinstance(batch[0], (tuple, list)):
+        transposed = zip(*batch)
+        return [numpy_collate(samples) for samples in transposed]
+
+    # list of dicts -> recursive returned as dict with same keys
+    elif isinstance(batch[0], dict):
+        return {key: numpy_collate([d[key] for d in batch]) for key in batch[0]}
+
+    # list of non array element -> list of arrays
+    else:
+        return np.array(batch)
