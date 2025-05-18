@@ -76,7 +76,25 @@ def setup_model_image(save_dir=None):
     return model_image_params
 
 
-def setup_model(model_type, save_dir=None):
+def setup_model_params(model_type, save_dir=None):
+
+    model_params = {
+        'model_type': model_type
+    }    
+    
+    if '_mdn' in model_type:        
+        model_params['mdn_kwargs'] = {
+                'model_out_dim': 128,
+                # 'mix_components': 1,
+                'n_mdn_components': 1,
+                'pi_dropout': 0.1,
+                'mu_dropout': [0.1, 0.1, 0.2, 0.0, 0.0, 0.1],
+                'sigma_inv_dropout': [0.1, 0.1, 0.2, 0.0, 0.0, 0.1],
+                'mu_min': [-np.inf] * 6,
+                'mu_max': [np.inf] * 6,
+                'sigma_inv_min': [1e-6] * 6,
+                'sigma_inv_max': [1e6] * 6,
+        }
 
     # if 'mdn_ac' in model_type:
     #     model_params = {
@@ -90,29 +108,33 @@ def setup_model(model_type, save_dir=None):
     #             'fixed_noise_level': None
     #         }
     #     }
-    if '_mdn' in model_type:
-        model_params = {
-            'model_type': model_type,
-            'mdn_kwargs': {
-                'model_out_dim': 128,
-                # 'mix_components': 1,
-                'n_mdn_components': 1,
-                'pi_dropout': 0.1,
-                'mu_dropout': [0.1, 0.1, 0.2, 0.0, 0.0, 0.1],
-                'sigma_inv_dropout': [0.1, 0.1, 0.2, 0.0, 0.0, 0.1],
-                'mu_min': [-np.inf] * 6,
-                'mu_max': [np.inf] * 6,
-                'sigma_inv_min': [1e-6] * 6,
-                'sigma_inv_max': [1e6] * 6,
-            }
+
+    if model_params['model_type'][:3] == 'vit':
+        model_params['model_kwargs'] = {
+                'patch_size': 32,
+                'dim': 128,
+                'depth': 6,
+                'heads': 8,
+                'mlp_dim': 512,
+                'pool': 'mean',  # for regression
         }
 
-    else:
-        model_params = {
-            'model_type': model_type
+    elif model_params['model_type'][:6] == 'resnet':
+        model_params['model_kwargs'] = {
+                'layers': [2, 2, 2, 2]
+        }
+        
+    elif model_params['model_type'][:7] == 'posenet':
+        model_params['model_kwargs'] = {
+                'conv_layers': [256, 256, 256, 256, 256],
+                'conv_kernel_sizes': [3, 3, 3, 3, 3],
+                'fc_layers': [64],
+                'activation': 'elu',
+                'dropout': 0.0,
+                'apply_batchnorm': True,
         }
 
-    if 'simple_cnn' in model_params['model_type']:
+    elif model_params['model_type'][:10] == 'simple_cnn':
         model_params['model_kwargs'] = {
             'conv_layers': [32, 32, 32, 32],
             'conv_kernel_sizes': [11, 9, 7, 5],
@@ -122,86 +144,53 @@ def setup_model(model_type, save_dir=None):
             'apply_batchnorm': True,
         }
 
-    elif 'posenet_cnn' in model_params['model_type']:
-        model_params = {
-            'model_kwargs': {
-                'conv_layers': [256, 256, 256, 256, 256],
-                'conv_kernel_sizes': [3, 3, 3, 3, 3],
-                'fc_layers': [64],
-                'activation': 'elu',
-                'dropout': 0.0,
-                'apply_batchnorm': True,
-            }
-        }
-
-    elif 'nature_cnn' in model_params['model_type']:
-        model_params = {
-            'model_kwargs': {
+    elif model_params['model_type'][:10] == 'nature_cnn':
+        model_params['model_kwargs'] = {
                 'fc_layers': [512, 512],
                 'dropout': 0.0,
-            }
         }
 
-    elif 'resnet' in model_params['model_type']:
-        model_params = {
-            'model_kwargs': {
-                'layers': [2, 2, 2, 2]
-            }
-        }
+    # elif model_params['model_type'] == 'cnn_mdn':
+    #     model_params['model_kwargs'] = {
+    #         'conv_filters': [16, 32, 64, 128],
+    #         'conv_kernel_sizes': [11, 9, 7, 5],
+    #         'conv_padding': 'same',
+    #         'conv_batch_norm': True,
+    #         'conv_activation': 'elu',
+    #         'conv_pool_size': 2,
+    #         'fc_units': [512, 512],
+    #         'fc_activation': 'elu',
+    #         'fc_dropout': 0.1,
+    #         'mix_components': 1,
+    #         'pi_dropout': 0.1,
+    #         'mu_dropout': [0.1, 0.1, 0.2, 0.0, 0.0, 0.1],
+    #         'sigma_inv_dropout': [0.1, 0.1, 0.2, 0.0, 0.0, 0.1],
+    #         'mu_min': [-np.inf] * 6,
+    #         'mu_max': [np.inf] * 6,
+    #         'sigma_inv_min': [1e-6] * 6,
+    #         'sigma_inv_max': [1e6] * 6,
+    #     }
 
-    elif 'vit' in model_params['model_type']:
-        model_params = {
-            'model_kwargs': {
-                'patch_size': 32,
-                'dim': 128,
-                'depth': 6,
-                'heads': 8,
-                'mlp_dim': 512,
-                'pool': 'mean',  # for regression
-            }
-        }
-
-    elif model_params['model_type'] == 'cnn_mdn':
-        model_params['model_kwargs'] = {
-            'conv_filters': [16, 32, 64, 128],
-            'conv_kernel_sizes': [11, 9, 7, 5],
-            'conv_padding': 'same',
-            'conv_batch_norm': True,
-            'conv_activation': 'elu',
-            'conv_pool_size': 2,
-            'fc_units': [512, 512],
-            'fc_activation': 'elu',
-            'fc_dropout': 0.1,
-            'mix_components': 1,
-            'pi_dropout': 0.1,
-            'mu_dropout': [0.1, 0.1, 0.2, 0.0, 0.0, 0.1],
-            'sigma_inv_dropout': [0.1, 0.1, 0.2, 0.0, 0.0, 0.1],
-            'mu_min': [-np.inf] * 6,
-            'mu_max': [np.inf] * 6,
-            'sigma_inv_min': [1e-6] * 6,
-            'sigma_inv_max': [1e6] * 6,
-        }
-
-    elif model_params['model_type'] == 'cnn_mdn_pretrain':
-        model_params['model_kwargs'] = {
-            'conv_filters': [16, 32, 64, 128],
-            'conv_kernel_sizes': [11, 9, 7, 5],
-            'conv_padding': 'same',
-            'conv_batch_norm': True,
-            'conv_activation': 'elu',
-            'conv_pool_size': 2,
-            'fc_units': [512, 512],
-            'fc_activation': 'elu',
-            'fc_dropout': 0.1,
-            'mix_components': 1,
-            'pi_dropout': 0.1,
-            'mu_dropout': [0.1, 0.1, 0.2, 0.0, 0.0, 0.1],
-            'sigma_inv_dropout': [0.1, 0.1, 0.2, 0.0, 0.0, 0.1],
-            'mu_min': [-np.inf] * 6,
-            'mu_max': [np.inf] * 6,
-            'sigma_inv_min': [1] * 6,
-            'sigma_inv_max': [1] * 6,
-        }
+    # elif model_params['model_type'] == 'cnn_mdn_pretrain':
+    #     model_params['model_kwargs'] = {
+    #         'conv_filters': [16, 32, 64, 128],
+    #         'conv_kernel_sizes': [11, 9, 7, 5],
+    #         'conv_padding': 'same',
+    #         'conv_batch_norm': True,
+    #         'conv_activation': 'elu',
+    #         'conv_pool_size': 2,
+    #         'fc_units': [512, 512],
+    #         'fc_activation': 'elu',
+    #         'fc_dropout': 0.1,
+    #         'mix_components': 1,
+    #         'pi_dropout': 0.1,
+    #         'mu_dropout': [0.1, 0.1, 0.2, 0.0, 0.0, 0.1],
+    #         'sigma_inv_dropout': [0.1, 0.1, 0.2, 0.0, 0.0, 0.1],
+    #         'mu_min': [-np.inf] * 6,
+    #         'mu_max': [np.inf] * 6,
+    #         'sigma_inv_min': [1] * 6,
+    #         'sigma_inv_max': [1] * 6,
+    #     }
 
     else:
         raise ValueError(f'Incorrect model_type specified: {model_type}')
@@ -251,7 +240,7 @@ def setup_model_labels(task_name, data_dirs, save_dir=None):
 
 def setup_training(model_type, task, data_dirs, save_dir=None):
     learning_params = setup_learning(model_type, save_dir)
-    model_params = setup_model(model_type, save_dir)
+    model_params = setup_model_params(model_type, save_dir)
     model_label_params = setup_model_labels(task, data_dirs, save_dir)
     model_image_params = setup_model_image(save_dir)
 
@@ -266,21 +255,3 @@ def setup_training(model_type, task, data_dirs, save_dir=None):
             shutil.copy(os.path.join(data_dirs[0], 'sensor_image_params.json'), save_dir)
 
     return learning_params, model_params, model_label_params, model_image_params
-
-
-def setup_training_markers(model_type, task, data_dirs, save_dir=None):
-    learning_params = setup_learning(save_dir)
-    model_image_params = setup_model(model_type, save_dir)
-    model_label_params = setup_model_labels(task, data_dirs, save_dir)
-
-    is_processed = os.path.isdir(os.path.join(data_dirs[0], 'processed_images'))
-
-    # retain data parameters
-    if save_dir:
-        shutil.copy(os.path.join(data_dirs[0], 'env_params.json'), save_dir)
-        if is_processed:
-            shutil.copy(os.path.join(data_dirs[0], 'processed_image_params.json'), save_dir)
-        else:
-            shutil.copy(os.path.join(data_dirs[0], 'sensor_image_params.json'), save_dir)
-
-    return learning_params, model_image_params, model_label_params, {}

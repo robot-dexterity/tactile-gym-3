@@ -9,10 +9,10 @@ from common.utils_plots import RegressionPlotter
 from learning.supervised.image_to_feature.cnn.image_generator import ImageGenerator
 from learning.supervised.image_to_feature.cnn.label_encoder import LabelEncoder
 
-from learning.supervised.image_to_feature.cnn.models import create_model as create_cnn_model
+from learning.supervised.image_to_feature.cnn.setup_model import setup_model as setup_cnn_model
 from learning.supervised.image_to_feature.cnn.evaluate_model import evaluate_model as evaluate_cnn_model
 from learning.supervised.image_to_feature.cnn.train_model import train_model as train_cnn_model
-from learning.supervised.image_to_feature.mdn.models import create_model as create_mdn_model
+from learning.supervised.image_to_feature.mdn.setup_model import setup_model as setup_mdn_model
 from learning.supervised.image_to_feature.mdn.evaluate_model import evaluate_model as evaluate_mdn_model
 from learning.supervised.image_to_feature.mdn.train_model import train_model as train_mdn_model
 
@@ -28,8 +28,6 @@ def launch(args):
 
     for args.dataset, args.task, args.model in it.product(args.datasets, args.tasks, args.models):
 
-        model_dir_name = '_'.join(filter(None, [args.model, *args.model_version]))
-
         # data dirs - list of directories combined in generator
         train_data_dirs = [
             os.path.join(BASE_DATA_PATH, output_dir, args.dataset, d) for d in args.train_dirs
@@ -39,7 +37,7 @@ def launch(args):
         ]
 
         # setup save dir
-        save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.task, model_dir_name)
+        save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.task, args.model)
         make_dir(save_dir)
 
         # setup parameters
@@ -68,7 +66,7 @@ def launch(args):
 
         # create the model
         seed_everything(learning_params['seed'])
-        model = create_model(
+        model = setup_model(
             in_dim=image_params['image_processing']['dims'],
             in_channels=1,
             out_dim=label_encoder.out_dim,
@@ -97,11 +95,11 @@ def launch(args):
             device=args.device
         )
 
-def create_model(**kwargs):
+def setup_model(**kwargs):
     if "_mdn" not in args.model:
-        model = create_cnn_model(**kwargs)
+        model = setup_cnn_model(**kwargs)
     else:
-        model = create_mdn_model(**kwargs)
+        model = setup_mdn_model(**kwargs)
     return model
 
 def train_model(**kwargs):
@@ -124,10 +122,9 @@ if __name__ == "__main__":
         sensor='tactip',
         datasets=['surface_3d_shear'],
         tasks=['servo_3d'],
-        models=['simple_cnn_mdn','simple_cnn'],
+        models=['simple_cnn_mdn_test','simple_cnn_test','posenet_mdn_test','posenet_test'],
         train_dirs=['train'],
         val_dirs=['val'],
-        model_version=[''],
         device='cuda'
     )
 

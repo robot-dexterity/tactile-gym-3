@@ -6,7 +6,7 @@ from pytorch_model_summary import summary
 from vit_pytorch.vit import ViT
 
 
-def create_model(
+def setup_model(
     in_dim,
     in_channels,
     out_dim,
@@ -15,34 +15,16 @@ def create_model(
     display_model=True,
     device='cpu'
 ):
-    if 'simple_cnn' in model_params['model_type']:
-        model = CNN(
-            in_dim=in_dim,
-            in_channels=in_channels,
-            out_dim=out_dim,
+    
+    if model_params['model_type'][:3] == 'vit':
+        model = ViT(
+            image_size=in_dim[0],
+            channels=in_channels,
+            num_classes=out_dim,
             **model_params['model_kwargs']
         ).to(device)
-        model.apply(weights_init_normal)
-
-    elif 'posenet_cnn' in model_params['model_type']:
-        model = CNN(
-            in_dim=in_dim,
-            in_channels=in_channels,
-            out_dim=out_dim,
-            **model_params['model_kwargs']
-        ).to(device)
-        model.apply(weights_init_normal)
-
-    elif 'nature_cnn' in model_params['model_type']:
-        model = NatureCNN(
-            in_dim=in_dim,
-            in_channels=in_channels,
-            out_dim=out_dim,
-            **model_params['model_kwargs']
-        ).to(device)
-        model.apply(weights_init_normal)
-
-    elif 'resnet' in model_params['model_type']:
+        
+    elif model_params['model_type'][:6] == 'resnet':
         model = ResNet(
             ResidualBlock,
             in_channels=in_channels,
@@ -50,13 +32,32 @@ def create_model(
             **model_params['model_kwargs'],
         ).to(device)
 
-    elif 'vit' in model_params['model_type']:
-        model = ViT(
-            image_size=in_dim[0],
-            channels=in_channels,
-            num_classes=out_dim,
+    elif model_params['model_type'][:7] == 'posenet':
+        model = CNN(
+            in_dim=in_dim,
+            in_channels=in_channels,
+            out_dim=out_dim,
             **model_params['model_kwargs']
         ).to(device)
+        model.apply(weights_init_normal)
+    
+    elif model_params['model_type'][:10] == 'simple_cnn':
+        model = CNN(
+            in_dim=in_dim,
+            in_channels=in_channels,
+            out_dim=out_dim,
+            **model_params['model_kwargs']
+        ).to(device)
+        model.apply(weights_init_normal)
+
+    elif model_params['model_type'][:10] == 'nature_cnn':
+        model = NatureCNN(
+            in_dim=in_dim,
+            in_channels=in_channels,
+            out_dim=out_dim,
+            **model_params['model_kwargs']
+        ).to(device)
+        model.apply(weights_init_normal)
 
     else:
         raise ValueError('Incorrect model_type specified:  %s' % (model_params['model_type'],))
@@ -67,11 +68,8 @@ def create_model(
             saved_model_dir, 'best_model.pth'), map_location='cpu')
         )
 
-    if display_model:
-        if model_params['model_type'] == 'fcn':
-            dummy_input = torch.zeros((1, in_dim)).to(device)
-        else:
-            dummy_input = torch.zeros((1, in_channels, *in_dim)).to(device)
+    if display_model:    
+        dummy_input = torch.zeros((1, in_channels, *in_dim)).to(device)
         print(summary(
             model,
             dummy_input,

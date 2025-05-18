@@ -54,20 +54,8 @@ def parse_args(
     parser.add_argument(
         '-m', '--models',
         nargs='+',
-        help="Choose models from ['simple_cnn', 'posenet_cnn', 'nature_cnn', 'resnet', 'vit']",
+        help="Choose models from ['simple_cnn', 'nature_cnn', 'posenet', 'resnet', 'vit']",
         default=models
-    )
-    parser.add_argument(
-        '-mv', '--model_version',
-        type=str,
-        help="Choose version.",
-        default=model_version
-    )
-    parser.add_argument(
-        '-n', '--sample_nums',
-        type=int,
-        help="Choose numbers of samples (default [100]).",
-        default=sample_nums
     )
     parser.add_argument(
         '-d', '--device',

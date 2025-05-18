@@ -6,10 +6,10 @@ from vit_pytorch.vit import ViT
 import torch.nn as nn
 from torch.distributions.normal import Normal
 
-from learning.supervised.image_to_feature.cnn.models import weights_init_normal, CNN, NatureCNN, ResNet, ResidualBlock
+from learning.supervised.image_to_feature.cnn.setup_model import weights_init_normal, CNN, NatureCNN, ResNet, ResidualBlock
 
 
-def create_model(
+def setup_model(
     in_dim,
     in_channels,
     out_dim,
@@ -23,7 +23,23 @@ def create_model(
         mdn_out_dim = out_dim
         out_dim = model_params['mdn_kwargs']['model_out_dim']
 
-    if 'simple_cnn' in model_params['model_type']:
+    if model_params['model_type'][:3]=='vit':
+        model = ViT(
+            image_size=in_dim[0],
+            channels=in_channels,
+            num_classes=out_dim,
+            **model_params['model_kwargs']
+        ).to(device)
+
+    elif  model_params['model_type'][:6]=='resnet':
+        model = ResNet(
+            ResidualBlock,
+            in_channels=in_channels,
+            out_dim=out_dim,
+            **model_params['model_kwargs'],
+        ).to(device)
+    
+    elif model_params['model_type'][:7]=='posenet':
         model = CNN(
             in_dim=in_dim,
             in_channels=in_channels,
@@ -32,7 +48,7 @@ def create_model(
         ).to(device)
         model.apply(weights_init_normal)
 
-    elif 'posenet_cnn' in model_params['model_type']:
+    elif model_params['model_type'][:10]=='simple_cnn':
         model = CNN(
             in_dim=in_dim,
             in_channels=in_channels,
@@ -41,7 +57,7 @@ def create_model(
         ).to(device)
         model.apply(weights_init_normal)
 
-    elif 'nature_cnn' in model_params['model_type']:
+    elif model_params['model_type'][:10]=='nature_cnn':
         model = NatureCNN(
             in_dim=in_dim,
             in_channels=in_channels,
@@ -49,22 +65,6 @@ def create_model(
             **model_params['model_kwargs']
         ).to(device)
         model.apply(weights_init_normal)
-
-    elif 'resnet' in model_params['model_type']:
-        model = ResNet(
-            ResidualBlock,
-            in_channels=in_channels,
-            out_dim=out_dim,
-            **model_params['model_kwargs'],
-        ).to(device)
-
-    elif 'vit' in model_params['model_type']:
-        model = ViT(
-            image_size=in_dim[0],
-            channels=in_channels,
-            num_classes=out_dim,
-            **model_params['model_kwargs']
-        ).to(device)
 
     else:
         raise ValueError('Incorrect model_type specified:  %s' % (model_params['model_type'],))
