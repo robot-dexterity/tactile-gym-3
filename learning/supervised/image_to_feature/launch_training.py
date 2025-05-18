@@ -126,8 +126,8 @@ if __name__ == "__main__":
     args = parse_args(
         robot='sim_ur',
         sensor='tactip',
-        datasets=['edge_2d_shear'],
-        tasks=['servo_2d'],
+        datasets=['surface_3d_shear'],
+        tasks=['servo_3d'],
         models=['simple_cnn','simple_cnn_mdn_jl'],
         train_dirs=['train'],
         val_dirs=['val'],
