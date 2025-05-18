@@ -35,16 +35,7 @@ def setup_parse(
 
 def setup_control_params(task, save_dir=None):
 
-    if task == 'surface_3d':
-        control_params = {
-            'kp': [1, 1, 0.5, 0.5, 0.5, 1],
-            'ki': [0, 0, 0.3, 0.1, 0.1, 0],
-            'ei_clip': [[0, 0, 0, -30, -30, 0], [0, 0, 5, 30, 30, 0]],
-            'error': 'lambda y, r: transform_euler(r, y)',  # SE(3) error
-            'ref': [0, 1, 3, 0, 0, 0]
-        }
-
-    elif task == 'edge_2d':
+    if task[:8] == 'servo_2d':
         control_params = {
             'kp': [0.5, 1, 0, 0, 0, 0.5],
             'ki': [0.3, 0, 0, 0, 0, 0.1],
@@ -53,16 +44,16 @@ def setup_control_params(task, save_dir=None):
             'ref': [0, 2, 0, 0, 0, 0]
         }
 
-    elif task == 'edge_3d':
-        control_params = {
-            'kp': [0.5, 1, 0.5, 0, 0, 0.5],
-            'ki': [0.3, 0, 0.3, 0, 0, 0.1],
-            'ei_clip': [[-5, 0, -2.5, 0, 0, -45], [5, 0, 2.5, 0, 0, 45]],
-            'error': 'lambda y, r: transform_euler(r, y)',  # SE(3) error
-            'ref': [0, 2, 3.5, 0, 0, 0]
-        }
+    # elif task[:8] == 'servo_3d':
+    #     control_params = {
+    #         'kp': [0.5, 1, 0.5, 0, 0, 0.5],
+    #         'ki': [0.3, 0, 0.3, 0, 0, 0.1],
+    #         'ei_clip': [[-5, 0, -2.5, 0, 0, -45], [5, 0, 2.5, 0, 0, 45]],
+    #         'error': 'lambda y, r: transform_euler(r, y)',  # SE(3) error
+    #         'ref': [0, 2, 3.5, 0, 0, 0]
+    #     }
 
-    elif task == 'edge_5d':
+    elif task[:8] == 'servo_5d':
         control_params = {
             'kp': [0.5, 1, 0.5, 0.5, 0.5, 0.5],
             'ki': [0.3, 0, 0.3, 0.1, 0.1, 0.1],
@@ -70,6 +61,18 @@ def setup_control_params(task, save_dir=None):
             'error': 'lambda y, r: transform_euler(r, y)',  # SE(3) error
             'ref': [0, -2, 3.5, 0, 0, 0]
         }
+    
+    elif task[:8] == 'servo_3d':
+        control_params = {
+            'kp': [1, 1, 0.5, 0.5, 0.5, 1],
+            'ki': [0, 0, 0.3, 0.1, 0.1, 0],
+            'ei_clip': [[0, 0, 0, -30, -30, 0], [0, 0, 5, 30, 30, 0]],
+            'error': 'lambda y, r: transform_euler(r, y)',  # SE(3) error
+            'ref': [0, 1, 3, 0, 0, 0]
+        }
+
+    else: 
+        raise ValueError(f'Incorrect task specified: {task}')
 
     if save_dir:
         save_json_obj(control_params, os.path.join(save_dir, 'control_params'))
@@ -113,7 +116,7 @@ def setup_task_params(sample_num, model_dir, save_dir=None):
     return task_params
 
 
-def setup_servo_control(sample_num, task, object, model_dir, env_params, save_dir=None):
+def setup_servo(sample_num, task, object, model_dir, env_params, save_dir=None):
     env_params = update_env_params(env_params, object, save_dir)
     control_params = setup_control_params(task, save_dir)
     task_params = setup_task_params(sample_num, model_dir, save_dir)

@@ -14,10 +14,10 @@ from cri.transforms import inv_transform_euler
 
 from demos.demo_servo.servo_utils.controller import PIDController
 from demos.demo_servo.servo_utils.labelled_model import LabelledModel
-from demos.demo_servo.servo_utils.setup_embodiment import setup_embodiment
-# from data_collection.collect_data.setup_embodiment import setup_embodiment
+# from demos.demo_servo.servo_utils.setup_embodiment import setup_embodiment
+from data_collection.collect_data.setup_embodiment import setup_embodiment
 
-from demos.demo_servo.servo_utils.utils_plots import PlotContour3D as PlotContour
+# from demos.demo_servo.servo_utils.utils_plots import PlotContour3D as PlotContour
 from learning.supervised.image_to_feature.cnn.label_encoder import LabelEncoder
 from learning.supervised.image_to_feature.cnn.setup_model import setup_model
 
@@ -31,13 +31,13 @@ def servo(
     controller,
     image_dir,
     task_params,
-    show_plot=True,
+    show_plot=False,
     # show_slider=False,
 ):
 
     # initialize peripherals
-    if show_plot:
-        plotContour = PlotContour(robot.coord_frame)
+    # if show_plot:
+    #     plotContour = PlotContour(robot.coord_frame)
     # if show_slider:
     #     slider = Slider(controller.ref)
 
@@ -72,8 +72,8 @@ def servo(
         robot.move_linear(pose)
 
         # optional peripheral: plot trajectory, reference slider
-        if show_plot:
-            plotContour.update(pose)
+        # if show_plot:
+        #     plotContour.update(pose)
         # if show_slider:
         #     controller.ref = slider.read()
 
@@ -88,28 +88,28 @@ def servo(
     robot.close()
 
     # optionally save plot and render view
-    if show_plot:
-        plot_outfile = os.path.join(image_dir, r"../trajectory.png")
-        plotContour.save(plot_outfile)
+    # if show_plot:
+    #     plot_outfile = os.path.join(image_dir, r"../trajectory.png")
+    #     plotContour.save(plot_outfile)
 
 
 def launch(args):
 
     output_dir = '_'.join([args.robot, args.sensor])
 
-    for args.task, args.model in it.product(args.tasks, args.models):
+    for args.dataset, args.task, args.model in it.product(args.datasets, args.tasks, args.models):
         for args.object, args.sample_num in zip(args.objects, args.sample_nums):
 
             run_dir_name = '_'.join(filter(None, [args.object, *args.run_version]))
 
             # setup save dir
-            save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.task, run_dir_name)
+            save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.task, run_dir_name)
             image_dir = os.path.join(save_dir, "processed_images")
             make_dir(save_dir)
             make_dir(image_dir)
 
             # load model, environment and image processing parameters
-            model_dir = os.path.join(BASE_DATA_PATH, output_dir, args.task, args)
+            model_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.task, args.model)
             env_params = load_json_obj(os.path.join(model_dir, 'env_params'))
             model_params = load_json_obj(os.path.join(model_dir, 'model_params'))
             model_image_params = load_json_obj(os.path.join(model_dir, 'model_image_params'))
