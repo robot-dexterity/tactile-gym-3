@@ -10,14 +10,14 @@ import pandas as pd
 from functools import partial
 from hyperopt import tpe, hp, fmin, Trials, STATUS_OK, STATUS_FAIL
 
-from learning.supervised.image_to_feature.cnn.evaluate_model import evaluate_model
-from learning.supervised.image_to_feature.cnn.image_generator import ImageDataGenerator
-from learning.supervised.image_to_feature.cnn.label_encoder import LabelEncoder
-from learning.supervised.image_to_feature.models.models import create_model
-from learning.supervised.image_to_feature.cnn.train_model import train_model
-from learning.supervised.image_to_image.utils_learning.utils_learning import seed_everything
+from common.utils import save_json_obj, make_dir, seed_everything
 from common.utils_plots import RegressionPlotter
-from common.utils import load_json_obj, save_json_obj, make_dir
+from learning.supervised.image_to_feature.cnn.image_generator import ImageGenerator
+from learning.supervised.image_to_feature.cnn.label_encoder import LabelEncoder
+
+from learning.supervised.image_to_feature.cnn.setup_model import setup_model
+from learning.supervised.image_to_feature.cnn.evaluate_model import evaluate_model
+from learning.supervised.image_to_feature.cnn.train_model import train_model
 
 from learning.supervised.image_to_feature.setup_training import setup_training, csv_row_to_label
 from learning.supervised.image_to_feature.parse_args import parse_args
@@ -26,17 +26,17 @@ BASE_DATA_PATH = "./tactile_data"
 
 
 # build hyperopt objective function
-def create_objective_func(
-            train_generator,
-            val_generator,
-            learning_params,
-            model_params,
-            image_params,
-            label_params,
-            save_dir,
-            error_plotter=None,
-            device='cpu'
-        ):
+def setup_objective_func(
+        train_generator,
+        val_generator,
+        learning_params,
+        model_params,
+        image_params,
+        label_params,
+        save_dir,
+        error_plotter=None,
+        device='cpu'
+    ):
     trial = 0
     lowest_val_loss = float('inf')
 
@@ -68,7 +68,7 @@ def create_objective_func(
         label_encoder = LabelEncoder(label_params, device)
 
         seed_everything(learning_params['seed'])
-        model = create_model(
+        model = setup_model(
             in_dim=image_params['image_processing']['dims'],
             in_channels=1,
             out_dim=label_encoder.out_dim,
@@ -79,13 +79,13 @@ def create_objective_func(
 
         try:
             val_loss, train_time = train_model(
-                'regression',
-                model,
-                label_encoder,
-                train_generator,
-                val_generator,
-                learning_params,
-                save_dir,
+                prediction_mode='regression',
+                model=model,
+                label_encoder=label_encoder,
+                train_generator=train_generator,
+                val_generator=val_generator,
+                learning_params=learning_params,
+                save_dir=save_dir,
                 device=device
             )
 
@@ -117,12 +117,12 @@ def create_objective_func(
             if error_plotter:
                 error_plotter.block = False
                 evaluate_model(
-                    model,
-                    label_encoder,
-                    val_generator,
-                    learning_params,
-                    error_plotter,
-                    device
+                    model=model,
+                    label_encoder=label_encoder,
+                    generator=val_generator,
+                    learning_params=learning_params,
+                    error_plotter=error_plotter,
+                    device=device
                 )
 
         trial += 1
@@ -158,8 +158,6 @@ def launch(args, space, max_evals=20, n_startup_jobs=10):
 
     for args.task, args.model in it.product(args.tasks, args.models):
 
-        model_dir_name = '_'.join(filter(None, [args.model, *args.model_version]))
-
         # data dirs - list of directories combined in generator
         train_data_dirs = [
             os.path.join(BASE_DATA_PATH, output_dir, args.task, d) for d in args.train_dirs
@@ -169,7 +167,7 @@ def launch(args, space, max_evals=20, n_startup_jobs=10):
         ]
 
         # setup save dir
-        save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.task, model_dir_name)
+        save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.task, args.model)
         make_dir(save_dir)
 
         # setup parameters
@@ -181,12 +179,12 @@ def launch(args, space, max_evals=20, n_startup_jobs=10):
         )
 
         # set generators
-        train_generator = ImageDataGenerator(
+        train_generator = ImageGenerator(
             train_data_dirs,
             csv_row_to_label,
             **{**image_params['image_processing'], **image_params['augmentation']}
         )
-        val_generator = ImageDataGenerator(
+        val_generator = ImageGenerator(
             val_data_dirs,
             csv_row_to_label,
             **image_params['image_processing']
@@ -197,7 +195,7 @@ def launch(args, space, max_evals=20, n_startup_jobs=10):
 
         # create the hyperparameter optimization
         trials = Trials()
-        obj_func = create_objective_func(
+        obj_func = setup_objective_func(
             train_generator,
             val_generator,
             learning_params,
@@ -231,13 +229,12 @@ def launch(args, space, max_evals=20, n_startup_jobs=10):
 if __name__ == "__main__":
 
     args = parse_args(
-        robot='sim',
+        robot='sim_ur',
         sensor='tactip',
-        tasks=['edge_2d'],
-        train_dirs=['train_data'],
-        val_dirs=['val_data'],
-        models=['simple_cnn'],
-        model_version=['hyp_temp'],
+        tasks=['edge_2d_shear'],
+        train_dirs=['train'],
+        val_dirs=['val'],
+        models=['simple_cnn_hyp'],
         device='cuda'
     )
 

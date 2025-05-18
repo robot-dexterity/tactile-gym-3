@@ -9,8 +9,6 @@ def parse_args(
         train_dirs=['train'],
         val_dirs=['val'],
         models=['simple_cnn'],
-        model_version=[],
-        sample_nums=[100],
         device='cuda'
 ):
     parser = argparse.ArgumentParser()

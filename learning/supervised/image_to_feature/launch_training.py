@@ -89,7 +89,7 @@ def launch(args):
         evaluate_model(
             model=model,
             label_encoder=label_encoder,
-            val_generator=val_generator,
+            generator=val_generator,
             learning_params=learning_params,
             error_plotter=error_plotter,
             device=args.device
