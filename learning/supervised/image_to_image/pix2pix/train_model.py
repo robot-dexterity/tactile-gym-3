@@ -10,7 +10,7 @@ from torch.utils.tensorboard import SummaryWriter
 import torch.optim as optim
 from torchvision.utils import save_image, make_grid
 
-from common.utils import get_lr, make_dir
+from common.utils import make_dir
 
 
 def train_model(
@@ -247,6 +247,10 @@ def train_model(
     torch.save(generator.state_dict(), os.path.join(save_dir, 'final_generator.pth'))
     torch.save(discriminator.state_dict(), os.path.join(save_dir, 'final_discriminator.pth'))
 
-
+def get_lr(optimizer):
+    for param_group in optimizer.param_groups:
+        return param_group['lr']
+    
+    
 if __name__ == "__main__":
     pass
