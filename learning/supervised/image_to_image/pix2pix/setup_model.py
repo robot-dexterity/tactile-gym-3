@@ -4,7 +4,7 @@ import torch.nn as nn
 from pytorch_model_summary import summary
 
 
-def create_model(
+def setup_model(
     in_dim,
     model_params,
     saved_model_dir=None,

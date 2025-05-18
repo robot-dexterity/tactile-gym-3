@@ -74,14 +74,8 @@ def parse_args(
     parser.add_argument(
         '-m', '--models',
         nargs='+',
-        help="Choose model from ['pix2pix'].",
+        help="Choose model from ['pix2pix','shpix2pix'].",
         default=models
-    )
-    parser.add_argument(
-        '-mv', '--model_version',
-        type=str,
-        help="Choose model version]",
-        default=model_version
     )
     parser.add_argument(
         '-d', '--device',

@@ -13,6 +13,7 @@ BASE_DATA_PATH = './tactile_data'
 
 
 class Image2ImageGenerator(torch.utils.data.Dataset):
+    
     def __init__(
         self,
         input_data_dirs,

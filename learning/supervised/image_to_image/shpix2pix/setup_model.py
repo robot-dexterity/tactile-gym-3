@@ -3,11 +3,11 @@ import torch
 import torch.nn as nn
 from pytorch_model_summary import summary
 
-from learning.supervised.image_to_image.pix2pix.models import Discriminator
-from learning.supervised.image_to_image.pix2pix.models import UNetDown, UNetUp  
+from learning.supervised.image_to_image.pix2pix.setup_model import Discriminator
+from learning.supervised.image_to_image.pix2pix.setup_model import UNetDown, UNetUp  
 
 
-def create_model(
+def setup_model(
     in_dim,
     model_params,
     saved_model_dir=None,

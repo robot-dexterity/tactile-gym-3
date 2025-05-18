@@ -8,10 +8,10 @@ BASE_DATA_PATH = "./tactile_data"
 
 from common.utils import make_dir, seed_everything
 from learning.supervised.image_to_image.pix2pix.image_generator import Image2ImageGenerator as Image2ImageGenerator_pix
-from learning.supervised.image_to_image.pix2pix.models import create_model as create_pix_model
+from learning.supervised.image_to_image.pix2pix.setup_model import setup_model as setup_pix_model
 from learning.supervised.image_to_image.pix2pix.train_model import train_model as train_pix_model
 from learning.supervised.image_to_image.shpix2pix.image_generator import Image2ImageGenerator as Image2ImageGenerator_sh
-from learning.supervised.image_to_image.shpix2pix.models import create_model as create_sh_model
+from learning.supervised.image_to_image.shpix2pix.setup_model import setup_model as setup_sh_model
 from learning.supervised.image_to_image.shpix2pix.train_model import train_model as train_sh_model
 
 from learning.supervised.image_to_image.setup_training import setup_training
@@ -48,39 +48,41 @@ def launch(args):
             input_train_data_dirs,
             save_dir
         )
+        augmentation_params = image_params['augmentation']
 
         # configure dataloaders
-        train_generator = Image2ImageGenerator_sh(
-            input_train_data_dirs,
-            target_train_data_dirs,
+        train_generator = Image2ImageGenerator(
+            input_data_dirs=input_train_data_dirs,
+            target_data_dirs=target_train_data_dirs,
             **{**image_params['image_processing'], **image_params['augmentation']}
         )
-        val_generator = Image2ImageGenerator_sh(
-            input_val_data_dirs,
-            target_val_data_dirs,
+        val_generator = Image2ImageGenerator(
+            input_data_dirs=input_val_data_dirs,
+            target_data_dirs=target_val_data_dirs,
             **image_params['image_processing']
         )
 
         # create the model
         seed_everything(learning_params['seed'])
-        generator, discriminator = create_sh_model(
-            image_params['image_processing']['dims'],
-            model_params,
+        generator, discriminator = setup_model(
+            in_dim=image_params['image_processing']['dims'],
+            model_params=model_params,
             device=args.device
         )
   
         # run training
         train_model(
-            generator,
-            discriminator,
-            train_generator,
-            val_generator,
-            learning_params,
-            image_params['image_processing'],
-            save_dir,
+            generator=generator,
+            discriminator=discriminator,
+            train_generator=train_generator,
+            val_generator=val_generator,
+            learning_params=learning_params,
+            image_processing_params=image_params['image_processing'],
+            save_dir=save_dir,
             device=args.device,
             debug=True
         )
+        
 
 def Image2ImageGenerator(**kwargs):
     if "sh" not in args.model:
@@ -89,48 +91,18 @@ def Image2ImageGenerator(**kwargs):
         generator = Image2ImageGenerator_sh(**kwargs)
     return generator
 
-def create_model(**kwargs):
+def setup_model(**kwargs):
     if "sh" not in args.model:
-        generator, discriminator = create_pix_model(**kwargs)
+        model = setup_pix_model(**kwargs)
     else:
-        generator, discriminator = create_sh_model(**kwargs)
-    return generator, discriminator
+        model = setup_sh_model(**kwargs)
+    return model
 
-def train_model(
-    generator,
-    discriminator,
-    train_generator,
-    val_generator,
-    learning_params,
-    image_processing_params,
-    save_dir,
-    device,
-    debug
-):
+def train_model(**kwargs):
     if "sh" not in args.model:
-        train_pix_model(
-            generator=generator,
-            discriminator=discriminator,
-            train_generator=train_generator,
-            val_generator=val_generator,
-            learning_params=learning_params,
-            image_processing_params=image_processing_params,
-            save_dir=save_dir,
-            device=device,
-            debug=debug
-        )
+        train_pix_model(**kwargs)
     else:
-        train_sh_model(
-            generator=generator,
-            discriminator=discriminator,
-            train_generator=train_generator,
-            val_generator=val_generator,
-            learning_params=learning_params,
-            image_processing_params=image_processing_params,
-            save_dir=save_dir,
-            device=device,
-            debug=debug
-        )
+        train_sh_model(**kwargs)
 
 
 if __name__ == "__main__":
@@ -141,7 +113,7 @@ if __name__ == "__main__":
         datasets=['edge_2d_shear'],
         train_dirs=['train'],
         val_dirs=['val'],
-        models=['shpix2pix_128'],
+        models=['shpix2pix_128_test'],
         device='cuda'
     )
 

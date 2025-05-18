@@ -62,20 +62,21 @@ def setup_model_image(save_dir=None):
     return model_image_params
 
 
-def setup_model(model_type, save_dir):
+def setup_model_params(model_type, save_dir):
+
+    model_params = {
+        'model_type': model_type
+    }
 
     if 'pix2pix' in model_type:
-        model_params = {
-            'model_type': model_type,
-            'generator_kwargs': {
-                'in_channels': 1,
-                'out_channels': 1,
-            },
-            'discriminator_kwargs': {
+        model_params['generator_kwargs'] = {
+            'in_channels': 1,
+            'out_channels': 1,
+        }
+        model_params['discriminator_kwargs'] = {
                 'in_channels': 1,
                 'disc_block': [64, 128, 256, 512],
                 'normalise_disc': [False, True, True, True],
-            }
         }
 
         if '64' in model_type:
@@ -121,10 +122,10 @@ def setup_model(model_type, save_dir):
         #         'dropout_up': [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0., 0.],
         #     })
         else:
-            print('dimension of pix2pix not recognized')
+            raise ValueError(f'Incorrect dimension specified: {model_type}')
 
     else:
-        print('model not recognized')
+        raise ValueError(f'Incorrect model_type specified: {model_type}')
 
     # save parameters
     save_json_obj(model_params, os.path.join(save_dir, 'model_params'))
@@ -135,7 +136,7 @@ def setup_model(model_type, save_dir):
 def setup_training(model_type, data_dirs, save_dir=None):
     learning_params = setup_learning(save_dir)
     model_image_params = setup_model_image(save_dir)
-    model_params = setup_model(model_type, save_dir)
+    model_params = setup_model_params(model_type, save_dir)
 
     is_processed = os.path.isdir(os.path.join(data_dirs[0], 'processed_images'))
 
