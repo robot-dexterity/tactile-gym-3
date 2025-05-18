@@ -5,13 +5,14 @@ import itertools as it
 import pandas as pd
 import torch
 
+from common.utils import numpy_collate
 from learning.supervised.image_to_feature.setup_training import setup_model_image, csv_row_to_label
 from data_collection.process_data.image_transforms import process_image, augment_image
 
 BASE_DATA_PATH = "./tactile_data"
 
 
-class ImageDataGenerator(torch.utils.data.Dataset):
+class ImageGenerator(torch.utils.data.Dataset):
 
     def __init__(
         self,
@@ -121,30 +122,6 @@ class ImageDataGenerator(torch.utils.data.Dataset):
         return sample
 
 
-def numpy_collate(batch):
-    '''
-    Batch is list of len: batch_size
-    Each element is dict {images: ..., labels: ...}
-    Use Collate fn to ensure they are returned as np arrays.
-    '''
-    # list of arrays -> stacked into array
-    if isinstance(batch[0], np.ndarray):
-        return np.stack(batch)
-
-    # list of lists/tuples -> recursive on each element
-    elif isinstance(batch[0], (tuple, list)):
-        transposed = zip(*batch)
-        return [numpy_collate(samples) for samples in transposed]
-
-    # list of dicts -> recursive returned as dict with same keys
-    elif isinstance(batch[0], dict):
-        return {key: numpy_collate([d[key] for d in batch]) for key in batch[0]}
-
-    # list of non array element -> list of arrays
-    else:
-        return np.array(batch)
-
-
 def demo_image_generation(
     data_dirs,
     csv_row_to_label,
@@ -155,7 +132,7 @@ def demo_image_generation(
 
     # Configure dataloaders
     generator_args = {**image_processing_params, **augmentation_params}
-    generator = ImageDataGenerator(
+    generator = ImageGenerator(
         data_dirs=data_dirs,
         csv_row_to_label=csv_row_to_label,
         **generator_args

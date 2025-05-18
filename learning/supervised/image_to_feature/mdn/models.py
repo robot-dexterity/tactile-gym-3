@@ -1,8 +1,101 @@
 import os
 import numpy as np
 import torch
+from pytorch_model_summary import summary
+from vit_pytorch.vit import ViT
 import torch.nn as nn
 from torch.distributions.normal import Normal
+
+from learning.supervised.image_to_feature.cnn.models import weights_init_normal, CNN, NatureCNN, ResNet, ResidualBlock
+
+
+def create_model(
+    in_dim,
+    in_channels,
+    out_dim,
+    model_params,
+    saved_model_dir=None,
+    display_model=True,
+    device='cpu'
+):
+    # for mdn head, base layers have model_out_dim
+    if '_mdn' in model_params['model_type']:
+        mdn_out_dim = out_dim
+        out_dim = model_params['mdn_kwargs']['model_out_dim']
+
+    if 'simple_cnn' in model_params['model_type']:
+        model = CNN(
+            in_dim=in_dim,
+            in_channels=in_channels,
+            out_dim=out_dim,
+            **model_params['model_kwargs']
+        ).to(device)
+        model.apply(weights_init_normal)
+
+    elif 'posenet_cnn' in model_params['model_type']:
+        model = CNN(
+            in_dim=in_dim,
+            in_channels=in_channels,
+            out_dim=out_dim,
+            **model_params['model_kwargs']
+        ).to(device)
+        model.apply(weights_init_normal)
+
+    elif 'nature_cnn' in model_params['model_type']:
+        model = NatureCNN(
+            in_dim=in_dim,
+            in_channels=in_channels,
+            out_dim=out_dim,
+            **model_params['model_kwargs']
+        ).to(device)
+        model.apply(weights_init_normal)
+
+    elif 'resnet' in model_params['model_type']:
+        model = ResNet(
+            ResidualBlock,
+            in_channels=in_channels,
+            out_dim=out_dim,
+            **model_params['model_kwargs'],
+        ).to(device)
+
+    elif 'vit' in model_params['model_type']:
+        model = ViT(
+            image_size=in_dim[0],
+            channels=in_channels,
+            num_classes=out_dim,
+            **model_params['model_kwargs']
+        ).to(device)
+
+    else:
+        raise ValueError('Incorrect model_type specified:  %s' % (model_params['model_type'],))
+
+    if '_mdn' in model_params['model_type']:
+    #     model = MDN_AC(
+    #         model=model,
+    #         out_dim=mdn_out_dim,
+    #         **model_params['mdn_kwargs']
+    #     ).to(device)
+        model = MDN_JL(
+            model=model,
+            out_dim=mdn_out_dim,
+            **model_params['mdn_kwargs']
+        ).to(device)
+
+    if saved_model_dir is not None:
+        print("LOADING MODEL")
+        model.load_state_dict(torch.load(os.path.join(
+            saved_model_dir, 'best_model.pth'), map_location='cpu')
+        )
+
+    if display_model:
+        dummy_input = torch.zeros((1, in_channels, *in_dim)).to(device)
+        print(summary(
+            model,
+            dummy_input,
+            show_input=True
+        ))
+
+    return model
 
 
 def softbound(x, x_min, x_max):

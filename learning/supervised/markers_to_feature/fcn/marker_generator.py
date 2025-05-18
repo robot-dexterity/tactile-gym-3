@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import torch
 
-from tactile_learning.supervised.image_generator import numpy_collate
+from common.utils import numpy_collate
 
 
 class MarkerDataGenerator(torch.utils.data.Dataset):

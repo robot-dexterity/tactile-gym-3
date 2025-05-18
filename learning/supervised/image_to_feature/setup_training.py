@@ -12,7 +12,7 @@ def csv_row_to_label(row):
 
 
 def setup_learning(model_type, save_dir=None):
-    if 'mdn_jl' in model_type:
+    if '_mdn' in model_type:
         learning_params = {
             'seed': 42,
             'batch_size': 16,
@@ -78,19 +78,19 @@ def setup_model_image(save_dir=None):
 
 def setup_model(model_type, save_dir=None):
 
-    if 'mdn_ac' in model_type:
-        model_params = {
-            'model_type': model_type,
-            'mdn_kwargs': {
-                'n_mdn_components': 1,
-                'model_out_dim': 128,
-                'hidden_dims': [256, 256],
-                'activation': 'relu',
-                'noise_type': 'diagonal',
-                'fixed_noise_level': None
-            }
-        }
-    elif 'mdn_jl' in model_type:
+    # if 'mdn_ac' in model_type:
+    #     model_params = {
+    #         'model_type': model_type,
+    #         'mdn_kwargs': {
+    #             'n_mdn_components': 1,
+    #             'model_out_dim': 128,
+    #             'hidden_dims': [256, 256],
+    #             'activation': 'relu',
+    #             'noise_type': 'diagonal',
+    #             'fixed_noise_level': None
+    #         }
+    #     }
+    if '_mdn' in model_type:
         model_params = {
             'model_type': model_type,
             'mdn_kwargs': {
@@ -161,7 +161,7 @@ def setup_model(model_type, save_dir=None):
             }
         }
 
-    elif model_params['model_type'] == 'cnn_mdn_jl':
+    elif model_params['model_type'] == 'cnn_mdn':
         model_params['model_kwargs'] = {
             'conv_filters': [16, 32, 64, 128],
             'conv_kernel_sizes': [11, 9, 7, 5],
@@ -182,7 +182,7 @@ def setup_model(model_type, save_dir=None):
             'sigma_inv_max': [1e6] * 6,
         }
 
-    elif model_params['model_type'] == 'cnn_mdn_jl_pretrain':
+    elif model_params['model_type'] == 'cnn_mdn_pretrain':
         model_params['model_kwargs'] = {
             'conv_filters': [16, 32, 64, 128],
             'conv_kernel_sizes': [11, 9, 7, 5],

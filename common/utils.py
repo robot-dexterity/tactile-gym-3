@@ -35,11 +35,6 @@ def empty_dir(folder):
             print("Failed to delete %s. Reason: %s" % (file_path, e))
     
 
-def get_lr(optimizer):
-    for param_group in optimizer.param_groups:
-        return param_group['lr']
-
-
 def seed_everything(seed):
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
@@ -125,3 +120,4 @@ def numpy_collate(batch):
     # list of non array element -> list of arrays
     else:
         return np.array(batch)
+    

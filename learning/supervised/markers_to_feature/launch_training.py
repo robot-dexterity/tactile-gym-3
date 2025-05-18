@@ -6,12 +6,12 @@ import itertools as it
 # import matplotlib
 # matplotlib.use('agg')
 
-from learning.supervised.image_to_feature.evaluate_model.evaluate_model import evaluate_model, evaluate_mdn_model
-from learning.supervised.image_to_feature.train_model.image_generator import ImageDataGenerator
-from learning.supervised.image_to_feature.train_model.label_encoder import LabelEncoder
+from learning.supervised.image_to_feature.cnn.evaluate_model import evaluate_model, evaluate_mdn_model
+from learning.supervised.image_to_feature.cnn.image_generator import ImageDataGenerator
+from learning.supervised.image_to_feature.cnn.label_encoder import LabelEncoder
 from learning.supervised.image_to_feature.models.models import create_model
-from learning.supervised.image_to_feature.train_model.train_mdn_model import train_mdn_model
-from learning.supervised.image_to_feature.train_model.train_model import train_model
+from learning.supervised.image_to_feature.mdn.train_model import train_mdn_model
+from learning.supervised.image_to_feature.cnn.train_model import train_model
 from learning.supervised.image_to_image.utils_learning.utils_learning import seed_everything
 from common.utils_plots import RegressionPlotter
 

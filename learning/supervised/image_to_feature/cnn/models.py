@@ -5,8 +5,6 @@ import torch.nn as nn
 from pytorch_model_summary import summary
 from vit_pytorch.vit import ViT
 
-from learning.supervised.image_to_feature.models.models_mdn import MDN_AC, MDN_JL
-
 
 def create_model(
     in_dim,
@@ -17,21 +15,7 @@ def create_model(
     display_model=True,
     device='cpu'
 ):
-    # for mdn head, base layers have model_out_dim
-    if '_mdn' in model_params['model_type']:
-        mdn_out_dim = out_dim
-        out_dim = model_params['mdn_kwargs']['model_out_dim']
-
-    if model_params['model_type'] in ['fcn']:
-        model = FCN(
-            in_dim=in_dim,
-            in_channels=in_channels,
-            out_dim=out_dim,
-            **model_params['model_kwargs']
-        ).to(device)
-        model.apply(weights_init_normal)
-
-    elif 'simple_cnn' in model_params['model_type']:
+    if 'simple_cnn' in model_params['model_type']:
         model = CNN(
             in_dim=in_dim,
             in_channels=in_channels,
@@ -39,6 +23,7 @@ def create_model(
             **model_params['model_kwargs']
         ).to(device)
         model.apply(weights_init_normal)
+
     elif 'posenet_cnn' in model_params['model_type']:
         model = CNN(
             in_dim=in_dim,
@@ -47,7 +32,8 @@ def create_model(
             **model_params['model_kwargs']
         ).to(device)
         model.apply(weights_init_normal)
-    elif model_params['model_type'] == 'nature_cnn':
+
+    elif 'nature_cnn' in model_params['model_type']:
         model = NatureCNN(
             in_dim=in_dim,
             in_channels=in_channels,
@@ -56,7 +42,7 @@ def create_model(
         ).to(device)
         model.apply(weights_init_normal)
 
-    elif model_params['model_type'] == 'resnet':
+    elif 'resnet' in model_params['model_type']:
         model = ResNet(
             ResidualBlock,
             in_channels=in_channels,
@@ -64,29 +50,16 @@ def create_model(
             **model_params['model_kwargs'],
         ).to(device)
 
-    elif model_params['model_type'] == 'vit':
+    elif 'vit' in model_params['model_type']:
         model = ViT(
             image_size=in_dim[0],
             channels=in_channels,
             num_classes=out_dim,
             **model_params['model_kwargs']
         ).to(device)
+
     else:
         raise ValueError('Incorrect model_type specified:  %s' % (model_params['model_type'],))
-
-    if '_mdn_ac' in model_params['model_type']:
-        model = MDN_AC(
-            model=model,
-            out_dim=mdn_out_dim,
-            **model_params['mdn_kwargs']
-        ).to(device)
-
-    elif '_mdn_jl' in model_params['model_type']:
-        model = MDN_JL(
-            model=model,
-            out_dim=mdn_out_dim,
-            **model_params['mdn_kwargs']
-        ).to(device)
 
     if saved_model_dir is not None:
         print("LOADING MODEL")
@@ -115,51 +88,6 @@ def weights_init_normal(m):
     elif classname.find("BatchNorm2d") != -1:
         torch.nn.init.normal_(m.weight.data, 1.0, 0.02)
         torch.nn.init.constant_(m.bias.data, 0.0)
-
-
-class FCN(nn.Module):
-    def __init__(
-        self,
-        in_dim,
-        in_channels,
-        out_dim,
-        fc_layers=[128, 128],
-        activation='relu',
-        dropout=0.0,
-        apply_batchnorm=False,
-    ):
-        super(FCN, self).__init__()
-
-        assert len(fc_layers) > 0, "fc_layers must contain values"
-
-        fc_modules = []
-
-        # add first layer
-        fc_modules.append(nn.Linear(in_dim, fc_layers[0]))
-        if apply_batchnorm:
-            fc_modules.append(nn.BatchNorm1d(fc_layers[0]))
-        if activation == 'relu':
-            fc_modules.append(nn.ReLU())
-        elif activation == 'elu':
-            fc_modules.append(nn.ELU())
-
-        # add remaining layers
-        for idx in range(len(fc_layers) - 1):
-            fc_modules.append(nn.Linear(fc_layers[idx], fc_layers[idx + 1]))
-            if apply_batchnorm:
-                fc_modules.append(nn.BatchNorm1d(fc_layers[idx + 1]))
-            if activation == 'relu':
-                fc_modules.append(nn.ReLU())
-            elif activation == 'elu':
-                fc_modules.append(nn.ELU())
-            fc_modules.append(nn.Dropout(dropout))
-        fc_modules.append(nn.Linear(fc_layers[-1], out_dim))
-
-        self.fc = nn.Sequential(*fc_modules)
-
-    def forward(self, x):
-        x = x.reshape(x.shape[0], -1)
-        return self.fc(x)
 
 
 class CNN(nn.Module):

@@ -10,11 +10,11 @@ import pandas as pd
 from functools import partial
 from hyperopt import tpe, hp, fmin, Trials, STATUS_OK, STATUS_FAIL
 
-from learning.supervised.image_to_feature.evaluate_model.evaluate_model import evaluate_model
-from learning.supervised.image_to_feature.train_model.image_generator import ImageDataGenerator
-from learning.supervised.image_to_feature.train_model.label_encoder import LabelEncoder
+from learning.supervised.image_to_feature.cnn.evaluate_model import evaluate_model
+from learning.supervised.image_to_feature.cnn.image_generator import ImageDataGenerator
+from learning.supervised.image_to_feature.cnn.label_encoder import LabelEncoder
 from learning.supervised.image_to_feature.models.models import create_model
-from learning.supervised.image_to_feature.train_model.train_model import train_model
+from learning.supervised.image_to_feature.cnn.train_model import train_model
 from learning.supervised.image_to_image.utils_learning.utils_learning import seed_everything
 from common.utils_plots import RegressionPlotter
 from common.utils import load_json_obj, save_json_obj, make_dir

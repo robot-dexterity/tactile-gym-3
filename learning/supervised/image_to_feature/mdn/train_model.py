@@ -1,22 +1,17 @@
 import os
-import warnings
 import time
-import pickle
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from torch.autograd import Variable
 import torch.optim as optim
-import torch.nn as nn
 import torch
 from torch.utils.tensorboard import SummaryWriter
-
-from common.utils import get_lr
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 
-def train_model_w_metrics(
+def train_model(
     prediction_mode,
     model,
     label_encoder,
@@ -24,9 +19,8 @@ def train_model_w_metrics(
     val_generator,
     learning_params,
     save_dir,
-    error_plotter=None,
-    calculate_train_metrics=False,
-    device='cpu'
+    device='cpu',
+    error_plotter=None
 ):
     # tensorboard writer for tracking vars
     writer = SummaryWriter(os.path.join(save_dir, 'tensorboard_runs'))
@@ -45,50 +39,48 @@ def train_model_w_metrics(
         num_workers=learning_params['n_cpu']
     )
 
-    # define optimizer and loss
-    if prediction_mode == 'classification':
-        loss = nn.CrossEntropyLoss()
-    elif prediction_mode == 'regression':
-        loss = nn.MSELoss()
-    else:
-        raise Warning("Incorrect prediction mode provided, falling back on MSEloss")
-        loss = nn.MSELoss()
+    n_train_batches = len(train_loader)
+    n_val_batches = len(val_loader)
 
     # define optimizer
-    optimizer = optim.Adam(
-        model.parameters(),
-        lr=learning_params['lr'],
-        betas=(learning_params["adam_b1"], learning_params["adam_b2"]),
-        weight_decay=learning_params['adam_decay']
-    )
-    lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer,
-        factor=learning_params['lr_factor'],
-        patience=learning_params['lr_patience'],
-        verbose=True
-    )
+    optimizer = optim.Adam(model.parameters())
 
-    def run_epoch(loader, n_batches_per_epoch, training=True):
+    if 'cyclic_base_lr' in learning_params:
+        lr_scheduler = optim.lr_scheduler.CyclicLR(
+            optimizer,
+            base_lr=learning_params['cyclic_base_lr'],
+            max_lr=learning_params['cyclic_max_lr'],
+            step_size_up=learning_params['cyclic_half_period'] * n_train_batches,
+            mode=learning_params['cyclic_mode'],
+            cycle_momentum=False
+        )
+
+    elif 'lr' in learning_params:
+        optimizer.lr = learning_params['lr']
+        optimizer.betas = (learning_params.get("adam_b1", None), learning_params.get("adam_b2", None))
+        optimizer.weight_decay = learning_params.get('adam_decay', None)
+        lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer,
+            factor=learning_params.get('lr_factor', None),
+            patience=learning_params.get('lr_patience', None),
+            verbose=True
+        )
+
+    def run_epoch(loader, n_batches, training=True):
+
+        pred_df = pd.DataFrame()
+        targ_df = pd.DataFrame()
 
         epoch_batch_loss = []
         epoch_batch_acc = []
 
-        # complete dateframe of predictions and targets
-        pred_df = pd.DataFrame()
-        targ_df = pd.DataFrame()
-
-        for i, batch in enumerate(loader):
-
-            # run set number of batches per epoch
-            if n_batches_per_epoch is not None and i >= n_batches_per_epoch:
-                break
+        for batch in loader:
 
             # get inputs
             inputs, labels_dict = batch['inputs'], batch['labels']
 
             # wrap them in a Variable object
             inputs = Variable(inputs).float().to(device)
-
             # get labels
             labels = label_encoder.encode_label(labels_dict)
 
@@ -97,24 +89,19 @@ def train_model_w_metrics(
                 optimizer.zero_grad()
 
             # forward pass, backward pass, optimize
-            outputs = model(inputs)
-            loss_size = loss(outputs, labels)
+            loss_size = model.loss(inputs, labels).mean()
             epoch_batch_loss.append(loss_size.item())
-
-            if prediction_mode == 'classification':
-                epoch_batch_acc.append((outputs.argmax(dim=1) == labels.argmax(dim=1)).float().mean().item())
-            else:
-                epoch_batch_acc.append(0.0)
+            epoch_batch_acc.append(0.0)
 
             if training:
                 loss_size.backward()
                 optimizer.step()
+                if 'cyclic_base_lr' in learning_params:
+                    lr_scheduler.step()
 
-            # calculate metrics that are useful to keep track of during training
-            # this can slow learning noticably, particularly if train metrics are tracked
-            if not training or calculate_train_metrics:
-
+            if not training:
                 # decode predictions into label
+                outputs = model(inputs)[1].squeeze()
                 predictions_dict = label_encoder.decode_label(outputs)
 
                 # append predictions and labels to dataframes
@@ -123,18 +110,17 @@ def train_model_w_metrics(
                 pred_df = pd.concat([pred_df, batch_pred_df])
                 targ_df = pd.concat([targ_df, batch_targ_df])
 
-        # reset indices to be 0 -> test set size
         pred_df = pred_df.reset_index(drop=True).fillna(0.0)
         targ_df = targ_df.reset_index(drop=True).fillna(0.0)
         return epoch_batch_loss, epoch_batch_acc, pred_df, targ_df
 
-    # get time for printing
+    # for tracking overall train time
     training_start_time = time.time()
 
     # for tracking metrics across training
     train_loss = []
-    train_acc = []
     val_loss = []
+    train_acc = []
     val_acc = []
 
     # for saving best model
@@ -145,15 +131,14 @@ def train_model_w_metrics(
         # Main training loop
         for epoch in range(1, learning_params['epochs'] + 1):
 
-            # ========= Training =========
             train_epoch_loss, train_epoch_acc, train_pred_df, train_targ_df = run_epoch(
-                train_loader, learning_params['n_train_batches_per_epoch'], training=True
+                train_loader, n_train_batches, training=True
             )
 
             # ========= Validation =========
             model.eval()
             val_epoch_loss, val_epoch_acc, val_pred_df, val_targ_df = run_epoch(
-                val_loader, learning_params['n_val_batches_per_epoch'], training=False
+                val_loader, n_val_batches, training=False
             )
             model.train()
 
@@ -180,34 +165,8 @@ def train_model_w_metrics(
             writer.add_scalar('accuracy/val', np.mean(val_epoch_acc), epoch)
             writer.add_scalar('learning_rate', get_lr(optimizer), epoch)
 
-            # calculate task metrics
-            if calculate_train_metrics:
-                train_metrics = label_encoder.calc_metrics(train_pred_df, train_targ_df)
+            # train_metrics = label_encoder.calc_metrics(train_pred_df, train_targ_df)
             val_metrics = label_encoder.calc_metrics(val_pred_df, val_targ_df)
-
-            # print task metrics
-            if calculate_train_metrics:
-                print("Train Metrics")
-                label_encoder.print_metrics(train_metrics)
-                print("")
-            print("Validation Metrics")
-            label_encoder.print_metrics(val_metrics)
-
-            # write task_metrics to tensorboard
-            if calculate_train_metrics:
-                label_encoder.write_metrics(writer, train_metrics, epoch, mode='train')
-            label_encoder.write_metrics(writer, val_metrics, epoch, mode='val')
-
-            # track weights on tensorboard
-            try:
-                for name, weight in model.named_parameters():
-                    full_name = f'{os.path.basename(os.path.normpath(save_dir))}/{name}'
-                    writer.add_histogram(full_name, weight, epoch)
-                    writer.add_histogram(f'{full_name}.grad', weight.grad, epoch)
-            except ValueError:
-                warnings.warn("Unable to save weights/gradients to tensorboard.")
-
-            # update plots
             if error_plotter:
                 if not error_plotter.final_only:
                     error_plotter.update(
@@ -224,13 +183,9 @@ def train_model_w_metrics(
                     os.path.join(save_dir, 'best_model.pth')
                 )
 
-                # save loss and acc, save val
-                save_vars = [train_loss, val_loss, train_acc, val_acc]
-                with open(os.path.join(save_dir, 'train_val_loss_acc.pkl'), 'bw') as f:
-                    pickle.dump(save_vars, f)
-
             # decay the lr
-            lr_scheduler.step(np.mean(val_epoch_loss))
+            if 'lr' in learning_params:
+                lr_scheduler.step(np.mean(val_epoch_loss))
 
             # update epoch progress bar
             pbar.update(1)
@@ -245,6 +200,11 @@ def train_model_w_metrics(
     )
 
     return lowest_val_loss, total_training_time
+
+
+def get_lr(optimizer):
+    for param_group in optimizer.param_groups:
+        return param_group['lr']
 
 
 if __name__ == "__main__":

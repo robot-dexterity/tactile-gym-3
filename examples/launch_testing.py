@@ -14,7 +14,7 @@ from data_collection.collect_data.setup_embodiment import setup_embodiment
 
 from learning.supervised.image_to_feature.evaluate_model.labelled_model import LabelledModel
 from learning.supervised.image_to_feature.models.models import create_model
-from learning.supervised.image_to_feature.train_model.label_encoder import LabelEncoder
+from learning.supervised.image_to_feature.cnn.label_encoder import LabelEncoder
 
 from learning.supervised.image_to_feature.parse_args import parse_args
 

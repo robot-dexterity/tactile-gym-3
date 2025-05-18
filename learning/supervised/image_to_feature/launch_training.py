@@ -3,17 +3,18 @@ python launch_training.py -r sim -s tactip -m simple_cnn -t edge_2d
 """
 import os
 import itertools as it
-# import matplotlib
-# matplotlib.use('agg')
 
 from common.utils import make_dir, seed_everything
 from common.utils_plots import RegressionPlotter
-from learning.supervised.image_to_feature.evaluate_model.evaluate_model import evaluate_model, evaluate_mdn_model
-from learning.supervised.image_to_feature.train_model.image_generator import ImageDataGenerator
-from learning.supervised.image_to_feature.train_model.label_encoder import LabelEncoder
-from learning.supervised.image_to_feature.models.models import create_model
-from learning.supervised.image_to_feature.train_model.train_mdn_model import train_mdn_model
-from learning.supervised.image_to_feature.train_model.train_model import train_model
+from learning.supervised.image_to_feature.cnn.image_generator import ImageGenerator
+from learning.supervised.image_to_feature.cnn.label_encoder import LabelEncoder
+
+from learning.supervised.image_to_feature.cnn.models import create_model as create_cnn_model
+from learning.supervised.image_to_feature.cnn.evaluate_model import evaluate_model as evaluate_cnn_model
+from learning.supervised.image_to_feature.cnn.train_model import train_model as train_cnn_model
+from learning.supervised.image_to_feature.mdn.models import create_model as create_mdn_model
+from learning.supervised.image_to_feature.mdn.evaluate_model import evaluate_model as evaluate_mdn_model
+from learning.supervised.image_to_feature.mdn.train_model import train_model as train_mdn_model
 
 from learning.supervised.image_to_feature.setup_training import setup_training, csv_row_to_label
 from learning.supervised.image_to_feature.parse_args import parse_args
@@ -50,12 +51,12 @@ def launch(args):
         )
 
         # configure dataloaders
-        train_generator = ImageDataGenerator(
+        train_generator = ImageGenerator(
             train_data_dirs,
             csv_row_to_label,
             **{**image_params['image_processing'], **image_params['augmentation']}
         )
-        val_generator = ImageDataGenerator(
+        val_generator = ImageGenerator(
             val_data_dirs,
             csv_row_to_label,
             **image_params['image_processing']
@@ -74,51 +75,46 @@ def launch(args):
             model_params=model_params,
             device=args.device
         )
-
-        if "_mdn" not in args.model:
-            train_model(
-                prediction_mode='regression',
-                model=model,
-                label_encoder=label_encoder,
-                train_generator=train_generator,
-                val_generator=val_generator,
-                learning_params=learning_params,
-                save_dir=save_dir,
-                error_plotter=error_plotter,
-                device=args.device
-            )
-        else:
-            train_mdn_model(
-                prediction_mode='regression',
-                model=model,
-                label_encoder=label_encoder,
-                train_generator=train_generator,
-                val_generator=val_generator,
-                learning_params=learning_params,
-                save_dir=save_dir,
-                error_plotter=error_plotter,
-                device=args.device
-            )
-
+        train_model(
+            prediction_mode='regression',
+            model=model,
+            label_encoder=label_encoder,
+            train_generator=train_generator,
+            val_generator=val_generator,
+            learning_params=learning_params,
+            save_dir=save_dir,
+            error_plotter=error_plotter,
+            device=args.device
+        )
+        
         # perform a final evaluation using the last model
-        if "_mdn" not in args.model:
-            evaluate_model(
-                model,
-                label_encoder,
-                val_generator,
-                learning_params,
-                error_plotter,
-                device=args.device
-            )
-        else:
-            evaluate_mdn_model(
-                model,
-                label_encoder,
-                val_generator,
-                learning_params,
-                error_plotter,
-                device=args.device
-            )
+        evaluate_model(
+            model,
+            label_encoder,
+            val_generator,
+            learning_params,
+            error_plotter,
+            device=args.device
+        )
+
+def create_model(**kwargs):
+    if "_mdn" not in args.model:
+        model = create_cnn_model(**kwargs)
+    else:
+        model = create_mdn_model(**kwargs)
+    return model
+
+def train_model(**kwargs):
+    if "_mdn" not in args.model:
+        train_cnn_model(**kwargs)
+    else:
+        train_mdn_model(**kwargs)
+
+def evaluate_model(**kwargs):
+    if "_mdn" not in args.model:
+        evaluate_cnn_model(**kwargs)
+    else:
+        evaluate_mdn_model(**kwargs)
 
 
 if __name__ == "__main__":
@@ -128,7 +124,7 @@ if __name__ == "__main__":
         sensor='tactip',
         datasets=['surface_3d_shear'],
         tasks=['servo_3d'],
-        models=['simple_cnn','simple_cnn_mdn_jl'],
+        models=['simple_cnn_mdn','simple_cnn'],
         train_dirs=['train'],
         val_dirs=['val'],
         model_version=[''],
