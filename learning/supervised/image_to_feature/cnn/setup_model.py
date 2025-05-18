@@ -292,3 +292,7 @@ class ResNet(nn.Module):
         x = self.fc(x)
 
         return x
+    
+
+if __name__ == "__main__":
+    pass

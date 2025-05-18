@@ -11,8 +11,7 @@ from data_collection.collect_data.setup_embodiment import setup_embodiment
 from data_collection.collect_data.setup_targets import setup_targets
 from data_collection.process_data.process_image_data import process_image_data, partition_data
 
-from data_collection.setup_collect_data import setup_collect_data, setup_collect_params
-from data_collection.parse_args import parse_args
+from data_collection.setup_collect_data import setup_collect_data, setup_collect_params, setup_parse
 
 BASE_DATA_PATH = './tactile_data'
 
@@ -85,9 +84,9 @@ def process(args, image_params, split=None):
 
 if __name__ == "__main__":
 
-    args = parse_args(
+    args = setup_parse(
         inputs=['ur_tactip'],
-        robot='sim_ur',
+        robot='sim',
         sensor='tactip',
         datasets=['edge_2d'],
         data_dirs=['train', 'val'],

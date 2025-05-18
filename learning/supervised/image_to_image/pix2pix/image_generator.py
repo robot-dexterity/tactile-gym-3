@@ -6,8 +6,9 @@ import pandas as pd
 import torch
 
 from common.utils import numpy_collate
-from learning.supervised.image_to_image.setup_training import setup_model_image
 from data_collection.process_data.image_transforms import process_image, augment_image
+from data_collection.setup_collect_data import setup_parse
+from learning.supervised.image_to_image.setup_training import setup_model_image
 
 BASE_DATA_PATH = './tactile_data'
 
@@ -218,10 +219,15 @@ def demo_image_generation(
 
 if __name__ == '__main__':
 
-    inputs=['sim_ur_tactip']
-    targets=['ur_tactip']
-    tasks=['edge_2d_shear']
-    data_dirs=['train', 'val']
+    args = setup_parse(
+        inputs=['sim_ur_tactip'],
+        robot='ur',
+        sensor='tactip',
+        datasets=['edge_2d_shear'],
+        data_dirs=['train', 'val']
+    )
+
+    output_dirs = ['_'.join([args.robot, args.sensor])]
 
     learning_params = {
         'batch_size': 32,
@@ -233,10 +239,10 @@ if __name__ == '__main__':
 
     # combine the data directories
     input_data_dirs = [
-        os.path.join(BASE_DATA_PATH, *i) for i in it.product(inputs, tasks, data_dirs)
+        os.path.join(BASE_DATA_PATH, *i) for i in it.product(args.inputs, args.datasets, args.data_dirs)
     ]
     target_data_dirs = [
-        os.path.join(BASE_DATA_PATH, *i) for i in it.product(targets, tasks, data_dirs)
+        os.path.join(BASE_DATA_PATH, *i) for i in it.product(output_dirs, args.datasets, args.data_dirs)
     ]
 
     demo_image_generation(

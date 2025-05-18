@@ -6,8 +6,9 @@ import pandas as pd
 import torch
 
 from common.utils import numpy_collate
-from learning.supervised.image_to_feature.setup_training import setup_model_image, csv_row_to_label
 from data_collection.process_data.image_transforms import process_image, augment_image
+from data_collection.setup_collect_data import setup_parse
+from learning.supervised.image_to_feature.setup_training import setup_model_image, csv_row_to_label
 
 BASE_DATA_PATH = "./tactile_data"
 
@@ -169,15 +170,17 @@ def demo_image_generation(
 
 if __name__ == '__main__':
 
-    robot='ur'
-    sensor='tactip'
-    tasks=['edge_2d']
-    data_dirs=['train_shear', 'val_shear']
+    args = setup_parse(
+        robot='ur',
+        sensor='tactip',
+        datasets=['edge_2d_shear'],
+        data_dirs=['train', 'val']
+    )
 
-    output_dir = '_'.join([robot, sensor])
+    output_dir = '_'.join([args.robot, args.sensor])
 
     data_dirs = [
-        os.path.join(BASE_DATA_PATH, output_dir, *i) for i in it.product(tasks, data_dirs)
+        os.path.join(BASE_DATA_PATH, output_dir, *i) for i in it.product(args.datasets, args.data_dirs)
     ]
 
     learning_params = {

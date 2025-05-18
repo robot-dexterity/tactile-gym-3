@@ -16,8 +16,7 @@ from learning.supervised.image_to_feature.mdn.setup_model import setup_model as 
 from learning.supervised.image_to_feature.mdn.evaluate_model import evaluate_model as evaluate_mdn_model
 from learning.supervised.image_to_feature.mdn.train_model import train_model as train_mdn_model
 
-from learning.supervised.image_to_feature.setup_training import setup_training, csv_row_to_label
-from learning.supervised.image_to_feature.parse_args import parse_args
+from learning.supervised.image_to_feature.setup_training import setup_training, setup_parse, csv_row_to_label
 
 BASE_DATA_PATH = "./tactile_data"
 
@@ -117,7 +116,7 @@ def evaluate_model(**kwargs):
 
 if __name__ == "__main__":
 
-    args = parse_args(
+    args = setup_parse(
         robot='sim_ur',
         sensor='tactip',
         datasets=['surface_3d_shear'],

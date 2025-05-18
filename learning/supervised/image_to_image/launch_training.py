@@ -14,8 +14,7 @@ from learning.supervised.image_to_image.shpix2pix.image_generator import Image2I
 from learning.supervised.image_to_image.shpix2pix.setup_model import setup_model as setup_sh_model
 from learning.supervised.image_to_image.shpix2pix.train_model import train_model as train_sh_model
 
-from learning.supervised.image_to_image.setup_training import setup_training
-from learning.supervised.image_to_image.parse_args import parse_args
+from learning.supervised.image_to_image.setup_training import setup_training, setup_parse
 
 
 def launch(args):
@@ -48,7 +47,6 @@ def launch(args):
             input_train_data_dirs,
             save_dir
         )
-        augmentation_params = image_params['augmentation']
 
         # configure dataloaders
         train_generator = Image2ImageGenerator(
@@ -107,7 +105,7 @@ def train_model(**kwargs):
 
 if __name__ == "__main__":
 
-    args = parse_args(
+    args = setup_parse(
         inputs=['sim_ur_tactip'],
         targets=['ur_tactip'],
         datasets=['edge_2d_shear'],

@@ -10,7 +10,7 @@ import torch
 
 from common.utils import load_json_obj
 from common.utils_plots import LearningPlotter, RegressionPlotter
-from learning.supervised.image_to_feature.parse_args import parse_args
+from learning.supervised.image_to_feature.setup_training import setup_parse
 
 BASE_DATA_PATH = './tactile_data'
 
@@ -190,7 +190,7 @@ class LabelEncoder:
 
 if __name__ == '__main__':
 
-    args = parse_args(
+    args = setup_parse(
         robot='sim',
         sensor='tactip',
         tasks=['edge_2d'],

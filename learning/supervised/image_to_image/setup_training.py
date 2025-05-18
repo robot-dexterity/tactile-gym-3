@@ -1,7 +1,34 @@
 import os
 import shutil
+import argparse
 
 from common.utils import save_json_obj
+
+
+def setup_parse(
+    robot='sim',
+    sensor='tactip',
+    datasets=['edge_2d_shear'],
+    inputs=[''],
+    train_dirs=['train'],
+    val_dirs=['val'],
+    targets=['sim_tactip'],
+    models=['pix2pix_128'],
+    device='cuda'
+):
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-r', '--robot', type=str, help="Options: ['sim', 'mg400', 'cr']", default=robot)
+    parser.add_argument('-s', '--sensor', type=str, help="Options: ['tactip', 'tactip_127']", default=sensor)
+    parser.add_argument('-ds', '--datasets', nargs='+', help="Options: ['surface_3d', 'edge_2d', 'spherical_probe']", default=datasets)
+    parser.add_argument('-i', '--inputs', nargs='+', help="Options: ['', 'ur_tactip', 'sim_tactip'].", default=inputs)
+    parser.add_argument('-dt', '--train_dirs', nargs='+', help="Default: ['train']", default=train_dirs)
+    parser.add_argument('-dv', '--val_dirs', nargs='+', help="Default: ['val']", default=val_dirs)
+    parser.add_argument('-o', '--targets', nargs='+', help="Options: ['ur_tactip', 'sim_tactip'].", default=targets)
+    parser.add_argument('-m', '--models', nargs='+', help="Options: ['pix2pix','shpix2pix']", default=models)
+    parser.add_argument('-d', '--device', type=str, help="Options: ['cpu', 'cuda']", default=device)
+
+    return parser.parse_args()
 
 
 def setup_learning(save_dir=None):
@@ -74,9 +101,9 @@ def setup_model_params(model_type, save_dir):
             'out_channels': 1,
         }
         model_params['discriminator_kwargs'] = {
-                'in_channels': 1,
-                'disc_block': [64, 128, 256, 512],
-                'normalise_disc': [False, True, True, True],
+            'in_channels': 1,
+            'disc_block': [64, 128, 256, 512],
+            'normalise_disc': [False, True, True, True],
         }
 
         if '64' in model_type:
