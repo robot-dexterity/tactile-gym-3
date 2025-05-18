@@ -6,19 +6,19 @@ import itertools as it
 import numpy as np
 import pandas as pd
 
+BASE_DATA_PATH = './tactile_data'
+
 from common.utils import load_json_obj, make_dir
 from common.utils_plots import RegressionPlotter
 from data_collection.collect_data.setup_targets import POSE_LABEL_NAMES, SHEAR_LABEL_NAMES
 from data_collection.collect_data.setup_targets import setup_targets
 from data_collection.collect_data.setup_embodiment import setup_embodiment
 
-from learning.supervised.image_to_feature.evaluate_model.labelled_model import LabelledModel
-from learning.supervised.image_to_feature.models.models import create_model
+from demos.demo_test.test_utils.labelled_model import LabelledModel
 from learning.supervised.image_to_feature.cnn.label_encoder import LabelEncoder
+from learning.supervised.image_to_feature.cnn.setup_model import setup_model
 
-from learning.supervised.image_to_feature.parse_args import parse_args
-
-BASE_DATA_PATH = './tactile_data'
+from demos.demo_servo.setup_servo import setup_parse
 
 
 def test_model(
@@ -91,7 +91,6 @@ def testing(args):
     # test the trained networks
     for args.dataset, args.task, args.model, args.sample_num in it.product(args.datasets, args.tasks, args.models, args.sample_nums):
 
-        model_dir_name = '_'.join(filter(None, [args.model, *args.model_version]))
         runs_dir_name = '_'.join(filter(None, ['test', args.model, *args.model_version]))
 
         # setup save dir
@@ -130,7 +129,7 @@ def testing(args):
         )
 
         # create the model
-        model = create_model(
+        model = setup_model(
             in_dim=model_image_params['image_processing']['dims'],
             in_channels=1,
             out_dim=label_encoder.out_dim,
@@ -162,7 +161,7 @@ def testing(args):
 
 if __name__ == "__main__":
 
-    args = parse_args(
+    args = setup_parse(
         robot='sim_ur',
         sensor='tactip',
         datasets=['edge_2d_shear'],

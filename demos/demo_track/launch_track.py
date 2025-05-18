@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 import time
 import re
-from examples.dobot_api import DobotApiDashboard, DobotApiMove, DobotApi
+from demos.demo_tracking.dobot_api import DobotApiDashboard, DobotApiMove, DobotApi
 
 # Robot IP address and ports
 ip = "192.168.1.6"  # Please modify the IP address according to the actual situation

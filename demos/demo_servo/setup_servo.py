@@ -1,7 +1,35 @@
 import os
 import numpy as np
+import argparse
 
-from tactile_image_processing.utils import save_json_obj
+from common.utils import save_json_obj
+
+
+def setup_parse(
+    robot='sim',
+    sensor='tactip',
+    datasets=['edge_2d'],
+    tasks=['servo_2d'],
+    models=['simple_cnn'],
+    objects=['circle'],
+    sample_nums=[100],
+    run_version=[''],
+    device='cuda'
+):
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-r', '--robot', type=str, help="Options: ['sim', 'mg400', 'cr']", default=robot)
+    parser.add_argument('-s', '--sensor', type=str, help="Options: ['tactip', 'tactip_127']", default=sensor)
+    parser.add_argument('-ds', '--datasets', nargs='+', help="Options: ['surface_3d', 'edge_2d', 'spherical_probe']", default=datasets)
+    parser.add_argument('-dt', '--train_dirs', nargs='+', help="Default: ['train']", default=['train'])
+    parser.add_argument('-t', '--tasks', nargs='+', help="Options: ['servo_2d', 'servo_3d', 'servo_5d', 'track_2d', 'track_3d', 'track_4d']", default=tasks)
+    parser.add_argument('-m', '--models', nargs='+', help="Options: ['simple_cnn', 'nature_cnn', 'posenet', 'resnet', 'vit']", default=models)
+    parser.add_argument('-o', '--objects', nargs='+', help="Options: ['circle', 'square']", default=objects)
+    parser.add_argument('-n', '--sample_nums', type=int, help="Default [100]", default=sample_nums)
+    parser.add_argument('-rv', '--run_version', nargs='+', help="Default: ['']", default=run_version)
+    parser.add_argument('-d', '--device', type=str, help="Options: ['cpu', 'cuda']", default=device)
+    
+    return parser.parse_args()
 
 
 def setup_control_params(task, save_dir=None):
