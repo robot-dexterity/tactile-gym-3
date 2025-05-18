@@ -212,8 +212,8 @@ class shPix2PixGeneratorUNet(nn.Module):
         )
         # ..todo: we need to get 512 automaticaly, not hardcode it. This way shpix2pix will be invariant to image size
         # self.fc = nn.Linear(512+6,512) # pix2pix256
-        # self.fc = nn.Linear(2048+6,2048) # pix2pix128
-        self.fc = nn.Linear(8192+6,8192) # pix2pix64
+        self.fc = nn.Linear(2048+6,2048) # pix2pix128
+        # self.fc = nn.Linear(8192+6,8192) # pix2pix64
 
     def forward(self, x, shear):
         down_outs = []

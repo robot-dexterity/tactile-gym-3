@@ -10,7 +10,7 @@ def setup_learning(save_dir=None):
     learning_params = {
         'seed': 42,
         'batch_size': 32,
-        'epochs': 250,
+        'epochs': 50,
         'n_val_batches': 10,
         'lr': 2e-4,
         'lr_factor': 0.5,
