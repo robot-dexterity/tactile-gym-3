@@ -215,7 +215,6 @@ def setup_model_labels(task_name, data_dirs, save_dir=None):
         'servo_5d': ['pose_x', 'pose_z', 'pose_Rx', 'pose_Ry', 'pose_Rz'],
     }
 
-    # get data limits from training data
     llims, ulims = [], []
     for data_dir in data_dirs:
         collect_params = load_json_obj(os.path.join(data_dir, 'collect_params'))

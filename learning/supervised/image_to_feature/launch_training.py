@@ -87,11 +87,11 @@ def launch(args):
         
         # perform a final evaluation using the last model
         evaluate_model(
-            model,
-            label_encoder,
-            val_generator,
-            learning_params,
-            error_plotter,
+            model=model,
+            label_encoder=label_encoder,
+            val_generator=val_generator,
+            learning_params=learning_params,
+            error_plotter=error_plotter,
             device=args.device
         )
 
