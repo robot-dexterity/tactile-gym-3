@@ -8,17 +8,18 @@ import numpy as np
 
 BASE_DATA_PATH = './tactile_data'
 
-from cri.transforms import inv_transform_euler
 from common.utils import load_json_obj, make_dir
+from cri.transforms import inv_transform_euler
 # from user_input.slider import Slider
 
-from demos.demo_test.test_utils.labelled_model import LabelledModel
+from demos.demo_servo.servo_utils.controller import PIDController
+from demos.demo_servo.servo_utils.labelled_model import LabelledModel
+from demos.demo_servo.servo_utils.setup_embodiment import setup_embodiment
+# from data_collection.collect_data.setup_embodiment import setup_embodiment
+
+from demos.demo_servo.servo_utils.utils_plots import PlotContour3D as PlotContour
 from learning.supervised.image_to_feature.cnn.label_encoder import LabelEncoder
 from learning.supervised.image_to_feature.cnn.setup_model import setup_model
-
-from demos.demo_servo.servo_utils.controller import PIDController
-from demos.demo_servo.servo_utils.setup_embodiment import setup_embodiment
-from demos.demo_servo.servo_utils.utils_plots import PlotContour3D as PlotContour
 
 from demos.demo_servo.setup_servo import setup_servo, setup_parse
 
@@ -174,7 +175,7 @@ if __name__ == "__main__":
     args = setup_parse(
         robot='sim_ur',
         sensor='tactip',
-        datasets=['edge_2d'],
+        datasets=['edge_2d_shear'],
         tasks=['servo_2d'],
         models=['simple_cnn'],
         objects=['circle', 'square'],

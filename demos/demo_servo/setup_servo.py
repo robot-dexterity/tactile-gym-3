@@ -9,6 +9,7 @@ def setup_parse(
     robot='sim',
     sensor='tactip',
     datasets=['edge_2d'],
+    train_dirs=['train'],
     tasks=['servo_2d'],
     models=['simple_cnn'],
     objects=['circle'],
@@ -21,7 +22,7 @@ def setup_parse(
     parser.add_argument('-r', '--robot', type=str, help="Options: ['sim', 'mg400', 'cr']", default=robot)
     parser.add_argument('-s', '--sensor', type=str, help="Options: ['tactip', 'tactip_127']", default=sensor)
     parser.add_argument('-ds', '--datasets', nargs='+', help="Options: ['surface_3d', 'edge_2d', 'spherical_probe']", default=datasets)
-    parser.add_argument('-dt', '--train_dirs', nargs='+', help="Default: ['train']", default=['train'])
+    parser.add_argument('-dt', '--train_dirs', nargs='+', help="Default: ['train']", default=train_dirs)
     parser.add_argument('-t', '--tasks', nargs='+', help="Options: ['servo_2d', 'servo_3d', 'servo_5d', 'track_2d', 'track_3d', 'track_4d']", default=tasks)
     parser.add_argument('-m', '--models', nargs='+', help="Options: ['simple_cnn', 'nature_cnn', 'posenet', 'resnet', 'vit']", default=models)
     parser.add_argument('-o', '--objects', nargs='+', help="Options: ['circle', 'square']", default=objects)

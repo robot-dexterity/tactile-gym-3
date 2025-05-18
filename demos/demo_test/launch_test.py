@@ -11,14 +11,13 @@ BASE_DATA_PATH = './tactile_data'
 from common.utils import load_json_obj, make_dir
 from common.utils_plots import RegressionPlotter
 from data_collection.collect_data.setup_targets import POSE_LABEL_NAMES, SHEAR_LABEL_NAMES
-from data_collection.collect_data.setup_targets import setup_targets
 from data_collection.collect_data.setup_embodiment import setup_embodiment
-
-from demos.demo_test.test_utils.labelled_model import LabelledModel
-from learning.supervised.image_to_feature.cnn.label_encoder import LabelEncoder
-from learning.supervised.image_to_feature.cnn.setup_model import setup_model
+from data_collection.collect_data.setup_targets import setup_targets
 
 from demos.demo_servo.setup_servo import setup_parse
+from demos.demo_servo.servo_utils.labelled_model import LabelledModel
+from learning.supervised.image_to_feature.cnn.label_encoder import LabelEncoder
+from learning.supervised.image_to_feature.cnn.setup_model import setup_model
 
 
 def test_model(
@@ -91,7 +90,7 @@ def testing(args):
     # test the trained networks
     for args.dataset, args.task, args.model, args.sample_num in it.product(args.datasets, args.tasks, args.models, args.sample_nums):
 
-        runs_dir_name = '_'.join(filter(None, ['test', args.model, *args.model_version]))
+        runs_dir_name = '_'.join(filter(None, ['test', args.model]))
 
         # setup save dir
         save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.task, runs_dir_name)
@@ -101,7 +100,7 @@ def testing(args):
 
         # set data and model dir
         data_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.train_dirs[0])
-        model_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.task, model_dir_name)
+        model_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.task, args.model)
 
         # load params
         collect_params = load_json_obj(os.path.join(data_dir, 'collect_params'))
@@ -164,10 +163,10 @@ if __name__ == "__main__":
     args = setup_parse(
         robot='sim_ur',
         sensor='tactip',
-        datasets=['edge_2d_shear'],
+        datasets=['surface_3d_shear'],
+        tasks=['servo_3d'],
+        models=['simple_cnn_test'],
         train_dirs=['train'],
-        tasks=['servo_2d'],
-        models=['simple_cnn'],
         sample_nums=[100],
         device='cuda'
     )
