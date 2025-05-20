@@ -14,7 +14,6 @@ from cri.transforms import inv_transform_euler
 
 from demos.demo_servo.servo_utils.controller import PIDController
 from demos.demo_servo.servo_utils.labelled_model import LabelledModel
-# from demos.demo_servo.servo_utils.setup_embodiment import setup_embodiment
 from data_collection.collect_data.setup_embodiment import setup_embodiment
 
 # from demos.demo_servo.servo_utils.utils_plots import PlotContour3D as PlotContour
@@ -65,7 +64,7 @@ def servo(
         pred_pose = pose_model.predict(tactile_image)
 
         # servo control output in sensor frame
-        servo = controller.update(pred_pose)
+        servo = controller.update(pred_pose[:6])
 
         # new pose applies servo in end effector frame
         pose = inv_transform_euler(servo, robot.pose)

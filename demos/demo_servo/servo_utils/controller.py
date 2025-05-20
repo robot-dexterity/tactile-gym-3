@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 import numpy as np
 
+from cri.transforms import inv_transform_euler, transform_euler
+
 
 class Controller(ABC):
     def __init__(self, t0=0, u0=0.0):
