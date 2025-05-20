@@ -1,3 +1,11 @@
+"""
+Connects to real robot not in simulation
+"""
+
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import itertools as it
 import cv2
 import torch
@@ -27,9 +35,13 @@ move_port = 30003#30003
 feed_port = 30004
 
 # Create connections to each port of the robot
+print("Connecting to robot...")
 dashboard = DobotApiDashboard(ip, dashboard_port)
+print("Connected to robot dashboard.")
 move = DobotApiMove(ip, move_port)
+print("Connected to robot move.")
 feed = DobotApi(ip, feed_port)
+print("Connected to robot feed.")
 
 # Enable the robot
 dashboard.EnableRobot()
@@ -77,12 +89,16 @@ def launch(model, label_encoder, args):
                 "../../tactile_data/data/tactile_sim2real/ur_tactip/edge_2d/train_shear"
             )
 
+            print("ENVIRONMENT SETUP!")
+
             learning_params, model_params, label_params, image_params_2 = setup_training(
                 'simple_cnn_mdn_jl',
                 'edge_2d',
                 ["../../tactile_data/data/tactile_sim2real/ur_tactip/edge_2d/train_shear"],
                 None
             )
+
+            print("TRAINING SETUP!")
 
             if robot is None:
                 # setup embodiment
@@ -242,6 +258,8 @@ if __name__ == "__main__":
         # sample_nums=[10],
         device="cpu"
     )
+    print("PARSING ARGS")
 
     model, label_encoder = load_posenet(args)
+    print("MODEL LOADED")
     launch(model, label_encoder, args)

@@ -1,6 +1,8 @@
 import os
 import sys
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
+
 from stable_baselines3.common.callbacks import EvalCallback, EveryNTimesteps
 from stable_baselines3 import PPO, SAC
 
