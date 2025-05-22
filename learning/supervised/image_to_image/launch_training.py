@@ -108,7 +108,7 @@ if __name__ == "__main__":
     args = setup_parse(
         inputs=['sim_ur_tactip'],
         targets=['ur_tactip'],
-        datasets=['edge_2d_shear'],
+        datasets=['edge_yRz_shear'],
         train_dirs=['train'],
         val_dirs=['val'],
         models=['shpix2pix_128_test'],

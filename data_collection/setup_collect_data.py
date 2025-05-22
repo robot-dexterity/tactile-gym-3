@@ -74,51 +74,56 @@ def setup_collect_params(robot, dataset, save_dir=None):
     if robot.split('_')[0] == 'sim':
         robot = 'sim'
 
+    object = dataset.split('_')[0]
+    object_poses = '_'.join(dataset.split('_')[:2])
+    
     pose_lims_dict = {
-        'surface_2d_shear': [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)],
-        'surface_3d':       [(0, 0, 2.5, -15, -15, 0), (0, 0, 5.5, 15, 15, 0)],
-        'surface_3d_shear': [(0, 0, 2.5, -15, -15, 0), (0, 0, 5.5, 15, 15, 0)],
-        'edge_2d':          [(0, -6, 3, 0, 0, -180),   (0, 6, 5, 0, 0, 180)],
-        'edge_2d_shear':    [(0, -6, 3, 0, 0, -180),   (0, 6, 5, 0, 0, 180)],
-        'spheres_2d':       [(-12.5, -12.5, 4, 0, 0, 0), (12.5, 12.5, 5, 0, 0, 0)],
-        'mixed_2d':         [(-5, -5, 4, 0, 0, 0),       (5, 5, 5, 0, 0, 0)],
+        'surface_0':     [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)],
+        'surface_zRxRy': [(0, 0, 2.5, -15, -15, 0), (0, 0, 5.5, 15, 15, 0)],
+        'edge_xRz':      [(-6, 0, 3, 0, 0, -180),   (6, 0, 5, 0, 0, 180)],
+        'edge_yRz':      [(0, -6, 3, 0, 0, -180),   (0, 6, 5, 0, 0, 180)],
+        'edge_zzRxRyRz': [(-6, 0, 3, -15, -15, -180),   (6, 0, 5, 15, 15, 180)],
+        'edge_yzRxRyRz': [(0, -6, 3, -15, -15, -180),   (0, 6, 5, 15, 15, 180)],
+        'spheres_xy':    [(-12.5, -12.5, 4, 0, 0, 0), (12.5, 12.5, 5, 0, 0, 0)],
+        'mixed_xy':      [(-5, -5, 4, 0, 0, 0),       (5, 5, 5, 0, 0, 0)],
     }
 
     shear_lims_dict = {
-        'surface_2d_shear': [(-5, -5, 0, 0, 0, 0), (5, 5, 0, 0, 0, 0)],
-        'surface_3d':       [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)],
-        'surface_3d_shear': [(-5, -5, 0, -5, -5, -5), (5, 5, 0, 5, 5, 5)],
-        'edge_2d':          [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)],
-        'edge_2d_shear':    [(-5, -5, 0, -5, -5, -5), (5, 5, 0, 5, 5, 5)],
-        'spheres_2d':       [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)],
-        'mixed_2d':         [(0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0)],
+        'surface_0':     [(-5, -5, 0, 0, 0, 0), (5, 5, 0, 0, 0, 0)],
+        'surface_zRxRy': [(-5, -5, 0, -5, -5, -5), (5, 5, 0, 5, 5, 5)],
+        'edge_xRz':      [(-5, -5, 0, 0, 0, -5), (5, 5, 0, 0, 0, 5)],
+        'edge_yRz':      [(-5, -5, 0, 0, 0, -5), (5, 5, 0, 0, 0, 5)],
+        'edge_xzRxRyRz': [(-5, -5, 0, -5, -5, -5), (5, 5, 0, 5, 5, 5)],
+        'edge_yzRxRyRz': [(-5, -5, 0, -5, -5, -5), (5, 5, 0, 5, 5, 5)],
     }
 
     object_poses_dict = {
-        "surface_3d":       {'surface': (0, 0, 0, 0, 0, 0)},
-        "surface_3d_shear": {'surface': (0, 0, 0, 0, 0, 0)},
-        "edge_2d":          {'edge':    (0, 0, 0, 0, 0, 0)},
-        "edge_2d_shear":    {'edge':    (0, 0, 0, 0, 0, 0)},
-        "spheres_2d":       {
+        'surface':       {'surface': (0, 0, 0, 0, 0, 0)},
+        'edge':          {'edge':    (0, 0, 0, 0, 0, 0)},
+        'spheres':       {
             SPHERE_LABEL_NAMES[3*i+j]: (60*(1-j), 60*(1-i), 0, 0, 0, -48)
             for i, j in np.ndindex(3, 3)
         },
-        "mixed_2d":         {
+        'mixed':         {
             MIXED_LABEL_NAMES[7*i+j]: (25*(i-1), 25*(3-j), 0, 0, 0, 0)
             for i, j in np.ndindex(3, 7)
         }
     }
 
     collect_params = {
-        'pose_llims': pose_lims_dict[dataset][0],
-        'pose_ulims': pose_lims_dict[dataset][1],
-        'shear_llims': shear_lims_dict[dataset][0],
-        'shear_ulims': shear_lims_dict[dataset][1],
-        'object_poses': object_poses_dict[dataset],
+        'object_poses': object_poses_dict[object],
+        'pose_llims': pose_lims_dict[object_poses][0],
+        'pose_ulims': pose_lims_dict[object_poses][1],
+        'shear_llims': shear_lims_dict[object_poses][0],
+        'shear_ulims': shear_lims_dict[object_poses][1],
         'sample_disk': False,
         'sort': False,
         'seed': 0
     }
+
+    if dataset.split('_')[-1] != 'shear':
+        collect_params['shear_llims'] = [0, 0, 0, 0, 0, 0]
+        collect_params['shear_ulims'] = [0, 0, 0, 0, 0, 0]
 
     if robot == 'sim':
         collect_params['sort'] = True

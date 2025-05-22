@@ -18,14 +18,14 @@ from learning.supervised.image_to_feature.mdn.train_model import train_model as 
 
 from learning.supervised.image_to_feature.setup_training import setup_training, setup_parse, csv_row_to_label
 
-BASE_DATA_PATH = "./tactile_data"
+BASE_DATA_PATH = './tactile_data'
 
 
 def launch(args):
 
     output_dir = '_'.join([args.robot, args.sensor])
 
-    for args.dataset, args.task, args.model in it.product(args.datasets, args.tasks, args.models):
+    for args.dataset, args.predict, args.model in it.product(args.datasets, args.predicts, args.models):
 
         # data dirs - list of directories combined in generator
         train_data_dirs = [
@@ -36,13 +36,13 @@ def launch(args):
         ]
 
         # setup save dir
-        save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.task, args.model)
+        save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.predict, args.model)
         make_dir(save_dir)
 
         # setup parameters
         learning_params, model_params, label_params, image_params = setup_training(
             args.model,
-            args.task,
+            args.predict,
             train_data_dirs,
             save_dir
         )
@@ -95,20 +95,20 @@ def launch(args):
         )
 
 def setup_model(**kwargs):
-    if "_mdn" not in args.model:
+    if '_mdn' not in args.model:
         model = setup_cnn_model(**kwargs)
     else:
         model = setup_mdn_model(**kwargs)
     return model
 
 def train_model(**kwargs):
-    if "_mdn" not in args.model:
+    if '_mdn' not in args.model:
         train_cnn_model(**kwargs)
     else:
         train_mdn_model(**kwargs)
 
 def evaluate_model(**kwargs):
-    if "_mdn" not in args.model:
+    if '_mdn' not in args.model:
         evaluate_cnn_model(**kwargs)
     else:
         evaluate_mdn_model(**kwargs)
@@ -117,11 +117,11 @@ def evaluate_model(**kwargs):
 if __name__ == "__main__":
 
     args = setup_parse(
-        robot='sim_ur',
+        robot='sim',
         sensor='tactip',
-        datasets=['surface_3d_shear'],
-        tasks=['servo_3d'],
-        models=['simple_cnn_mdn_test','simple_cnn_test','posenet_mdn_test','posenet_test'],
+        datasets=['edge_yRz_shear'],
+        predicts=['pose_yRz'],
+        models=['simple_cnn'],
         train_dirs=['train'],
         val_dirs=['val'],
         device='cuda'

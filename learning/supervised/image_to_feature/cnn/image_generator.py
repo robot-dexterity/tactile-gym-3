@@ -171,7 +171,7 @@ def demo_image_generation(
 if __name__ == '__main__':
 
     args = setup_parse(
-        robot='ur',
+        robot='sim_ur',
         sensor='tactip',
         datasets=['edge_2d_shear'],
         data_dirs=['train', 'val']

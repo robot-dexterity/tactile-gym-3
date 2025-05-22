@@ -96,19 +96,19 @@ def launch(args):
 
     output_dir = '_'.join([args.robot, args.sensor])
 
-    for args.dataset, args.task, args.model in it.product(args.datasets, args.tasks, args.models):
+    for args.dataset, args.predict, args.model in it.product(args.datasets, args.predicts, args.models):
         for args.object, args.sample_num in zip(args.objects, args.sample_nums):
 
             run_dir_name = '_'.join(filter(None, [args.object, *args.run_version]))
 
             # setup save dir
-            save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.task, run_dir_name)
+            save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.predict, run_dir_name)
             image_dir = os.path.join(save_dir, "processed_images")
             make_dir(save_dir)
             make_dir(image_dir)
 
             # load model, environment and image processing parameters
-            model_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.task, args.model)
+            model_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.predict, args.model)
             env_params = load_json_obj(os.path.join(model_dir, 'env_params'))
             model_params = load_json_obj(os.path.join(model_dir, 'model_params'))
             model_image_params = load_json_obj(os.path.join(model_dir, 'model_image_params'))
@@ -121,7 +121,7 @@ def launch(args):
             # setup control and update env parameters from data_dir
             control_params, env_params, task_params = setup_servo(
                 args.sample_num,
-                args.task,
+                args.predict,
                 args.object,
                 args.model,
                 env_params,
@@ -172,14 +172,14 @@ def launch(args):
 if __name__ == "__main__":
 
     args = setup_parse(
-        robot='sim_ur',
+        robot='sim',
         sensor='tactip',
-        datasets=['edge_2d_shear'],
-        tasks=['servo_2d'],
+        datasets=['edge_yRz_shear'],
+        predicts=['pose_yRz'],
         models=['simple_cnn'],
         objects=['circle', 'square'],
         sample_nums=[100, 100],
-        run_version=[''],
+        run_version=['test'],
         device='cuda'
     )
 

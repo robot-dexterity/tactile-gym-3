@@ -85,12 +85,12 @@ def process(args, image_params, split=None):
 if __name__ == "__main__":
 
     args = setup_parse(
-        inputs=['ur_tactip'],
+        # inputs=['ur_tactip'],
         robot='sim',
         sensor='tactip',
-        datasets=['edge_2d'],
+        datasets=['edge_yRz_shear'],
         data_dirs=['train', 'val'],
-        # sample_nums=[5000, 2000]
+        sample_nums=[5000, 2000]
     )
     launch(args)
 

@@ -15,11 +15,11 @@ def csv_row_to_label(row):
 def setup_parse(
     robot='sim',
     sensor='tactip',
-    datasets=['edge_2d'],
-    tasks=['servo_2d'],
+    datasets=['edge_yRz'],
+    predicts=['predict_yRz'],
+    models=['simple_cnn'],
     train_dirs=['train'],
     val_dirs=['val'],
-    models=['simple_cnn'],
     device='cuda'
 ):
     parser = argparse.ArgumentParser()
@@ -27,7 +27,7 @@ def setup_parse(
     parser.add_argument('-r', '--robot', type=str, help="Options: ['sim', 'mg400', 'cr']", default=robot)
     parser.add_argument('-s', '--sensor', type=str, help="Options: ['tactip', 'tactip_127']", default=sensor)
     parser.add_argument('-ds', '--datasets', nargs='+', help="Options: ['surface_3d', 'edge_2d', 'spherical_probe']", default=datasets)
-    parser.add_argument('-t', '--tasks', nargs='+', help="Options: ['servo_2d', 'servo_3d', 'servo_5d', 'track_2d', 'track_3d', 'track_4d']", default=tasks)
+    parser.add_argument('-p', '--predicts', nargs='+', help="Options: ['servo_2d', 'servo_3d', 'servo_5d', 'track_2d', 'track_3d', 'track_4d']", default=predicts)
     parser.add_argument('-dt', '--train_dirs', nargs='+', help="Default: ['train']", default=train_dirs)
     parser.add_argument('-dv', '--val_dirs', nargs='+', help="Default: ['val']", default=val_dirs)
     parser.add_argument('-m', '--models', nargs='+', help="Options: ['simple_cnn', 'nature_cnn', 'posenet', 'resnet', 'vit']", default=models)
@@ -227,12 +227,12 @@ def setup_model_labels(task_name, data_dirs, save_dir=None):
     """
 
     target_label_names_dict = {
-        'track_2d': ['shear_x', 'shear_y'],
-        'track_3d': ['shear_x', 'shear_y', 'shear_Rz'],
-        'track_4d': ['pose_z', 'shear_x', 'shear_y', 'shear_Rz'],
-        'servo_2d': ['pose_y', 'pose_Rz'],
-        'servo_3d': ['pose_z', 'pose_Rx', 'pose_Ry'],
-        'servo_5d': ['pose_x', 'pose_z', 'pose_Rx', 'pose_Ry', 'pose_Rz'],
+        'shear_xy':       ['shear_x', 'shear_y'],
+        'shear_xyRz':     ['shear_x', 'shear_y', 'shear_Rz'],
+        'pose_z_shear_xyRz': ['pose_z', 'shear_x', 'shear_y', 'shear_Rz'],
+        'pose_yRz':      ['pose_y', 'pose_Rz'],
+        'pose_zRxRy':    ['pose_z', 'pose_Rx', 'pose_Ry'],
+        'pose_yzRxRyRz': ['pose_y', 'pose_z', 'pose_Rx', 'pose_Ry', 'pose_Rz'],
     }
 
     llims, ulims = [], []
