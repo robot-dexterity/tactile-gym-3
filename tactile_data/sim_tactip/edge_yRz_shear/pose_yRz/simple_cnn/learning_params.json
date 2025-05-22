@@ -1,0 +1,1 @@
+{"seed": 42, "batch_size": 16, "epochs": 50, "shuffle": true, "n_cpu": 1, "n_train_batches_per_epoch": null, "n_val_batches_per_epoch": null, "lr": 1e-05, "lr_factor": 0.5, "lr_patience": 10, "adam_decay": 1e-06, "adam_b1": 0.9, "adam_b2": 0.999}
