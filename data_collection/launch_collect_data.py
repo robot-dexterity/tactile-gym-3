@@ -5,28 +5,26 @@ import os
 import itertools as it
 import pandas as pd
 
-INPUT_DATA_PATH = "../../tactile_data/data/tactile_servo_control/"
-TARGET_DATA_PATH = ""
-
+from common.utils import make_dir, load_json_obj, save_json_obj
 from data_collection.collect_data.collect_data import collect_data
+from data_collection.collect_data.setup_embodiment import setup_embodiment
 from data_collection.collect_data.setup_targets import setup_targets
-from utils.process_data.process_image_data import process_image_data, partition_data
-from utils.utils import make_dir, load_json_obj, save_json_obj
+from data_collection.process_data.process_image_data import process_image_data, partition_data
 
-from data_collection.setup_collect_data import setup_collect_data, setup_collect_params
-from data_collection.collect_data.setup_embodiment import (setup_embodiment)
-from data_collection.parse_args import parse_args
+from data_collection.setup_collect_data import setup_collect_data, setup_collect_params, setup_parse
+
+BASE_DATA_PATH = './tactile_data'
 
 
 def launch(args):
 
     output_dir = '_'.join([args.robot, args.sensor])
 
-    for args.task, args.input in it.product(args.tasks, args.inputs):
+    for args.dataset, args.input in it.product(args.datasets, args.inputs):
         for args.data_dir, args.sample_num in zip(args.data_dirs, args.sample_nums):
 
             # setup save dir
-            save_dir = os.path.join(TARGET_DATA_PATH, output_dir, args.task, args.data_dir)
+            save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.data_dir)
             image_dir = os.path.join(save_dir, "sensor_images")
             make_dir(save_dir)
             make_dir(image_dir)
@@ -35,7 +33,7 @@ def launch(args):
             env_params, sensor_params = setup_collect_data(
                 args.robot,
                 args.sensor,
-                args.task,
+                args.dataset,
                 save_dir
             )
 
@@ -47,7 +45,7 @@ def launch(args):
 
             if args.input:
                 # load and save targets to collect
-                load_dir = os.path.join(INPUT_DATA_PATH, args.input, args.task, args.data_dir)
+                load_dir = os.path.join(BASE_DATA_PATH, args.input, args.dataset, args.data_dir)
                 collect_params = load_json_obj(os.path.join(load_dir, 'collect_params'))              
                 target_df = pd.read_csv(os.path.join(load_dir, 'targets_images.csv'))
 
@@ -56,7 +54,7 @@ def launch(args):
 
             else:
                 # setup targets to collect
-                collect_params = setup_collect_params(args.robot, args.task, save_dir)
+                collect_params = setup_collect_params(args.robot, args.dataset, save_dir)
                 target_df = setup_targets(
                     collect_params,
                     args.sample_num,
@@ -73,12 +71,12 @@ def launch(args):
             )
 
 
-def process_images(args, image_params, split=None):
+def process(args, image_params, split=None):
 
     output_dir = '_'.join([args.robot, args.sensor])
 
-    for args.task in args.tasks:
-        path = os.path.join(TARGET_DATA_PATH, output_dir, args.task)
+    for args.dataset in args.datasets:
+        path = os.path.join(BASE_DATA_PATH, output_dir, args.dataset)
 
         dir_names = partition_data(path, args.data_dirs, split)
         process_image_data(path, dir_names, image_params)
@@ -86,17 +84,17 @@ def process_images(args, image_params, split=None):
 
 if __name__ == "__main__":
 
-    args = parse_args(
-        inputs=['cr_tactip'],
-        robot='sim_ur',
+    args = setup_parse(
+        # inputs=['ur_tactip'],
+        robot='sim',
         sensor='tactip',
-        tasks=['edge_2d'],
-        data_dirs=['train_data', 'val_data'],
-        # sample_nums=[10]
+        datasets=['edge_yRz_shear'],
+        data_dirs=['train', 'val'],
+        sample_nums=[5000, 2000]
     )
     launch(args)
 
     image_params = {
         "bbox": (12, 12, 240, 240)  
     }
-    process_images(args, image_params)  # , split=0.8)
+    process(args, image_params)  # , split=0.8)

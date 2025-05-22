@@ -10,7 +10,7 @@ from  learning.reinforcement.sb3_helpers.params import import_parameters
 from learning.reinforcement.sb3_helpers.rl_utils import make_training_envs, make_eval_env
 from learning.reinforcement.sb3_helpers.eval_agent import final_evaluation
 
-from learning.supervised.image_to_image.utils.utils_learning import save_json_obj, convert_json, make_dir
+from learning.supervised.image_to_image.utils_learning.utils_learning import save_json_obj, convert_json, make_dir
 
 from learning.reinforcement.sb3_helpers.custom.custom_callbacks import (
     FullPlottingCallback,
@@ -18,7 +18,7 @@ from learning.reinforcement.sb3_helpers.custom.custom_callbacks import (
 )
 
 import matplotlib
-matplotlib.use("TkAgg")
+# matplotlib.use("TkAgg")
 
 
 def train_agent(

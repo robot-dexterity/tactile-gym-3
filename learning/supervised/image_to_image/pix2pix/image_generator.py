@@ -1,15 +1,20 @@
 import numpy as np
 import os
 import cv2
+import itertools as it
 import pandas as pd
 import torch
 
-from learning.supervised.image_to_image.supervised.image_generator import numpy_collate
-from utils.image_transforms import process_image
-from utils.image_transforms import augment_image
+from common.utils import numpy_collate
+from data_collection.process_data.image_transforms import process_image, augment_image
+from data_collection.setup_collect_data import setup_parse
+from learning.supervised.image_to_image.setup_training import setup_model_image
+
+BASE_DATA_PATH = './tactile_data'
 
 
-class shPix2PixImageGenerator(torch.utils.data.Dataset):
+class Image2ImageGenerator(torch.utils.data.Dataset):
+    
     def __init__(
         self,
         input_data_dirs,
@@ -48,16 +53,6 @@ class shPix2PixImageGenerator(torch.utils.data.Dataset):
         # load csv file
         self.input_label_df = self.load_data_dirs(input_data_dirs)
         self.target_label_df = self.load_data_dirs(target_data_dirs)
-
-        # We must transform shear values to make them rotation aware. Otherwise, shear values are inscrutable.
-        new_shear_x = (self.input_label_df['shear_x'] * np.cos(np.deg2rad(-self.input_label_df['pose_Rz']))) - (
-                self.input_label_df['shear_y'] * np.sin(np.deg2rad(-self.input_label_df['pose_Rz'])))
-        new_shear_y = (self.input_label_df['shear_x'] * np.sin(np.deg2rad(-self.input_label_df['pose_Rz']))) + (
-                self.input_label_df['shear_y'] * np.cos(np.deg2rad(-self.input_label_df['pose_Rz'])))
-        self.input_label_df.loc[:, "shear_x"] = new_shear_x
-        self.input_label_df.loc[:, "shear_y"] = new_shear_y
-        self.target_label_df.loc[:, "shear_x"] = new_shear_x
-        self.target_label_df.loc[:, "shear_y"] = new_shear_y
 
     def load_data_dirs(self, data_dirs):
 
@@ -168,12 +163,7 @@ class shPix2PixImageGenerator(torch.utils.data.Dataset):
             processed_input_image = np.rollaxis(processed_input_image, 2, 0)
             processed_target_image = np.rollaxis(processed_target_image, 2, 0)
 
-        shear = self.input_label_df[["shear_x", "shear_y", "shear_z", "shear_Rx", "shear_Ry", "shear_Rz"]].iloc[index]
-        sensor_img = self.input_label_df["sensor_image"].iloc[index]
-        return {"input": processed_input_image,
-                "shear": torch.tensor(list(shear)),
-                "target": processed_target_image,
-                "sensor_img": sensor_img} #..todo: do we need sensor img?
+        return {"input": processed_input_image, "target": processed_target_image}
 
 
 def demo_image_generation(
@@ -185,7 +175,7 @@ def demo_image_generation(
 ):
     # Configure dataloaders
     generator_args = {**image_processing_params, **augmentation_params}
-    generator = shPix2PixImageGenerator(
+    generator = Image2ImageGenerator(
         input_data_dirs=input_data_dirs,
         target_data_dirs=target_data_dirs,
         **generator_args
@@ -225,3 +215,40 @@ def demo_image_generation(
             k = cv2.waitKey(500)
             if k == 27:    # Esc key to stop
                 exit()
+
+
+if __name__ == '__main__':
+
+    args = setup_parse(
+        inputs=['sim_ur_tactip'],
+        robot='ur',
+        sensor='tactip',
+        datasets=['edge_2d_shear'],
+        data_dirs=['train', 'val']
+    )
+
+    output_dirs = ['_'.join([args.robot, args.sensor])]
+
+    learning_params = {
+        'batch_size': 32,
+        'shuffle': True,
+        'n_cpu': 1
+    }
+
+    image_params = setup_model_image()
+
+    # combine the data directories
+    input_data_dirs = [
+        os.path.join(BASE_DATA_PATH, *i) for i in it.product(args.inputs, args.datasets, args.data_dirs)
+    ]
+    target_data_dirs = [
+        os.path.join(BASE_DATA_PATH, *i) for i in it.product(output_dirs, args.datasets, args.data_dirs)
+    ]
+
+    demo_image_generation(
+        input_data_dirs,
+        target_data_dirs,
+        learning_params,
+        image_params['image_processing'],
+        image_params['augmentation'],
+    )
