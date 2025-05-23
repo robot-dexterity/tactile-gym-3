@@ -32,6 +32,7 @@ This repo refers to the paper "*Sim-to-real Deep Reinforcement Learning for Comp
 
 ### Installation ###
 This repo has only been developed and tested with Ubuntu 18.04 and python 3.10.
+We use `uv` to manage the python environment.
 
 Clone the repository:
 ```console
@@ -39,29 +40,25 @@ git clone https://github.com/dexterousrobot/tactile_gym
 cd tactile_gym
 ```
 
-To create a conda environment (recommended)
+Check if you have `uv` installed:
+```sh
+which uv
 ```
-conda env create -n tactile_gym python=3.10
-conda activate tactile_gym
-```
-
-To install dependencies:
-```console
-pip install -e .
+if you don't see output like: `/home/user/.local/bin/uv`, then [install `uv`](https://docs.astral.sh/uv/getting-started/installation/):
+```sh
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-You will also need to install the [Common Robot Interface](https://github.com/robot-dexterity/common-robot-interface), with e.g.:
-```console
-cd ..
-git clone https://github.com/robot-dexterity/common-robot-interface
-cd common-robot-interface
-pip install -e .
-cd ../tactile-gym-3/
+Set the environment up with:
+```sh
+uv sync
 ```
+
+Run `python` using `uv` with `uv run python ...`
 
 Demonstration files are provided in the example directory. From the base directory run
 ```
-python examples/demo_env.py -env example_arm-v0
+uv run python examples/demo_env.py -env example_arm-v0
 ```
 
 alternate envs can be specified but setting the `-env` argurment to any of the following: `example_arm-v0` `edge_follow-v0` `surface_follow-v0` `object_roll-v0` `object_push-v0` `object_balance-v0`.
