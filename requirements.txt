@@ -17,4 +17,4 @@ tensorboard
 seaborn
 gym
 tqdm
-common-robot-interface
+common-robot-interface>=0.5.2
