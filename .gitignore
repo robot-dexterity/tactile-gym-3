@@ -19,8 +19,8 @@ lib64
 /dist/
 /*.egg-info
 /build/
-.python-version
 *.toml
+!pyproject.toml
 uv.lock
 /.venv/
 __pycache__/
