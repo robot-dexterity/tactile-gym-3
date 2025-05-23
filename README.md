@@ -58,8 +58,9 @@ Run `python` using `uv` with `uv run python ...`
 
 Demonstration files are provided in the example directory. From the base directory run
 ```
-uv run python examples/demo_env.py -env example_arm-v0
+uv run --env-file=.env python demos/demo_test/launch_test.py -env example_arm-v0
 ```
+We need to specify `--env-file=.env` so that the script in `demos/demo_test` can import the packages in the root directory (like `common/`) correctly.
 
 alternate envs can be specified but setting the `-env` argurment to any of the following: `example_arm-v0` `edge_follow-v0` `surface_follow-v0` `object_roll-v0` `object_push-v0` `object_balance-v0`.
 
