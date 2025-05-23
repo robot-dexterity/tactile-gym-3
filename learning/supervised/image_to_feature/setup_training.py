@@ -3,8 +3,8 @@ import shutil
 import numpy as np
 import argparse
 
-from data_collection.collect_data.setup_targets import POSE_LABEL_NAMES, SHEAR_LABEL_NAMES
 from common.utils import load_json_obj, save_json_obj
+from data_collection.setup_collect_data import POSE_LABEL_NAMES, SHEAR_LABEL_NAMES
 
 
 def csv_row_to_label(row):

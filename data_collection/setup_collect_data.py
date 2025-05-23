@@ -4,6 +4,10 @@ import argparse
 
 from common.utils import save_json_obj
 
+POSE_LABEL_NAMES = ["pose_x", "pose_y", "pose_z", "pose_Rx", "pose_Ry", "pose_Rz"]
+SHEAR_LABEL_NAMES = ["shear_x", "shear_y", "shear_z", "shear_Rx", "shear_Ry", "shear_Rz"]
+OBJECT_POSE_LABEL_NAMES = ["object_x", "object_y", "object_z", "object_Rx", "object_Ry", "object_Rz"]
+
 SPHERE_LABEL_NAMES = [
     '2mm', '3mm', '4mm',
     '5mm', '6mm', '7mm',

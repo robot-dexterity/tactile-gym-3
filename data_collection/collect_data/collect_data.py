@@ -1,9 +1,9 @@
 import os
 import numpy as np
 
+from data_collection.setup_collect_data import POSE_LABEL_NAMES, SHEAR_LABEL_NAMES, OBJECT_POSE_LABEL_NAMES
 from data_collection.collect_data.setup_embodiment import setup_embodiment
 from data_collection.collect_data.setup_targets import setup_targets
-from data_collection.collect_data.setup_targets import POSE_LABEL_NAMES, SHEAR_LABEL_NAMES, OBJECT_POSE_LABEL_NAMES
 from common.utils import make_dir, save_json_obj
 
 BASE_DATA_PATH = './tactile_data'
