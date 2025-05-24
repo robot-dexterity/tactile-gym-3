@@ -1,10 +1,8 @@
-import os
-
-from data_collection.collect_data.simple_sensors import RealSensor, ReplaySensor, SimSensor
-from tactile_sim.setup_pybullet_env import setup_pybullet_env
-
 from cri.robot import SyncRobot
-from cri.controller import SimController, Controller
+from cri.controller import Controller, DummyController, SimController
+
+from data_collection.collect.simple_sensors import RealSensor, ReplaySensor, SimSensor
+from tactile_sim.setup_pybullet_env import setup_pybullet_env
 
 
 def setup_real_embodiment(
@@ -40,13 +38,28 @@ def setup_sim_embodiment(
     return robot, sensor
 
 
+def setup_dummy_embodiment(
+    env_params,
+    sensor_params,
+):
+    # setup dummy robot
+    robot = SyncRobot(DummyController())
+    sensor = ReplaySensor(sensor_params)    
+
+    return robot, sensor
+
+
 def setup_embodiment(
     env_params,
     sensor_params,
 ):
     if 'sim' in env_params['robot']:
         robot, sensor = setup_sim_embodiment(env_params, sensor_params)
-    else:
+
+    elif 'dummy' in env_params['robot']:
+        robot, sensor = setup_dummy_embodiment(env_params, sensor_params)
+    
+    else: # real robot
         robot, sensor = setup_real_embodiment(env_params, sensor_params)
 
     # if replay overwrite sensor

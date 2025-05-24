@@ -5,12 +5,12 @@ import itertools as it
 import pandas as pd
 import torch
 
+BASE_DATA_PATH = "./../tactile_data"
+
 from common.utils import numpy_collate
-from data_collection.process_data.image_transforms import process_image, augment_image
+from data_collection.process.transform_image import transform_image, augment_image
 from data_collection.setup_collect_data import setup_parse
 from learning.supervised.image_to_feature.setup_training import setup_model_image, csv_row_to_label
-
-BASE_DATA_PATH = "./tactile_data"
 
 
 class ImageGenerator(torch.utils.data.Dataset):
@@ -95,7 +95,7 @@ class ImageGenerator(torch.utils.data.Dataset):
         raw_image = cv2.imread(image_filename)
 
         # preprocess/augment image
-        processed_image = process_image(
+        transformed_image = transform_image(
             raw_image,
             gray=self._gray,
             bbox=self._bbox,
@@ -105,8 +105,8 @@ class ImageGenerator(torch.utils.data.Dataset):
             thresh=self._thresh,
         )
 
-        processed_image = augment_image(
-            processed_image,
+        transformed_image = augment_image(
+            transformed_image,
             rshift=self._rshift,
             rzoom=self._rzoom,
             brightlims=self._brightlims,
@@ -114,11 +114,11 @@ class ImageGenerator(torch.utils.data.Dataset):
         )
 
         # put the channel into first axis because pytorch
-        processed_image = np.rollaxis(processed_image, 2, 0)
+        transformed_image = np.rollaxis(transformed_image, 2, 0)
 
         # get label
         target = self._csv_row_to_label(row)
-        sample = {'inputs': processed_image, 'labels': target}
+        sample = {'inputs': transformed_image, 'labels': target}
 
         return sample
 

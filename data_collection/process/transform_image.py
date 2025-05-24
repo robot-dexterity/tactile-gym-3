@@ -7,7 +7,7 @@ from scipy import ndimage
 from skimage.util import random_noise
 
 
-def process_image(
+def transform_image(
     image,
     gray=True,
     bbox=None,
@@ -236,7 +236,7 @@ def camera_loop(
 
     while True:
         image = camera.process()
-        processed_image = process_image(image, **image_processing_kwargs)
+        processed_image = transform_image(image, **image_processing_kwargs)
         cv2.imshow(display_name, processed_image)
         if cv2.waitKey(10)==27:  # Esc key to stop
             break
@@ -244,7 +244,7 @@ def camera_loop(
 
 if __name__ == '__main__':
 
-    from tactile_image_processing.simple_sensors import RealSensor
+    from data_collection.collect.simple_sensors import RealSensor
 
     sensor_params = {
         'source': 1,

@@ -1,7 +1,7 @@
 import itertools as it
 import cv2
 import torch
-from data_collection.process_data.process_image_data import process_image_data
+from data_collection.process.process_images import process_images
 from data_collection.setup_collect_data import setup_collect_data
 from learning.supervised.image_to_image.parse_args import parse_args
 from learning.supervised.image_to_image.supervised.models import create_model
@@ -12,7 +12,7 @@ from data_collection.process_data.image_transforms import process_image
 from data_collection.process_data.image_transforms import augment_image
 import os
 import numpy as np
-from data_collection.collect_data.setup_embodiment import setup_embodiment
+from data_collection.collect.setup_embodiment import setup_embodiment
 from time import time
 import matplotlib.pyplot as plt
 

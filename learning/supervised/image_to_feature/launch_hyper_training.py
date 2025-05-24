@@ -11,16 +11,13 @@ from functools import partial
 from hyperopt import tpe, hp, fmin, Trials, STATUS_OK, STATUS_FAIL
 
 from common.utils import save_json_obj, make_dir, seed_everything
-from common.utils_plots import RegressionPlotter
+from learning.supervised.image_to_feature.cnn.evaluate_model import evaluate_model
 from learning.supervised.image_to_feature.cnn.image_generator import ImageGenerator
 from learning.supervised.image_to_feature.cnn.label_encoder import LabelEncoder
-
 from learning.supervised.image_to_feature.cnn.setup_model import setup_model
-from learning.supervised.image_to_feature.cnn.evaluate_model import evaluate_model
 from learning.supervised.image_to_feature.cnn.train_model import train_model
-
-from learning.supervised.image_to_feature.setup_training import setup_training, csv_row_to_label
-from learning.supervised.image_to_feature.parse_args import parse_args
+from learning.supervised.image_to_feature.cnn.utils_plots import RegressionPlotter
+from learning.supervised.image_to_feature.setup_training import setup_training, csv_row_to_label, parse_args
 
 BASE_DATA_PATH = "./tactile_data"
 

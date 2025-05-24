@@ -1,6 +1,6 @@
 import cv2
 
-from data_collection.process_data.image_transforms import process_image
+from data_collection.process.transform_image import transform_image
 
 
 class SimSensor:
@@ -14,7 +14,7 @@ class SimSensor:
 
     def process(self, outfile=None):
         img = self.read()
-        img = process_image(img, **self.sensor_params)
+        img = transform_image(img, **self.sensor_params)
         if outfile:
             cv2.imwrite(outfile, img)
         return img
@@ -38,7 +38,7 @@ class RealSensor:
 
     def process(self, outfile=None):
         img = self.read()
-        img = process_image(img, **self.sensor_params)
+        img = transform_image(img, **self.sensor_params)
         if outfile:
             cv2.imwrite(outfile, img)
         return img
@@ -54,5 +54,5 @@ class ReplaySensor:
 
     def process(self, outfile):
         img = self.read(outfile)
-        img = process_image(img, **self.sensor_params)
+        img = transform_image(img, **self.sensor_params)
         return img

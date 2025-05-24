@@ -4,13 +4,13 @@ import cv2
 import numpy as np
 import pandas as pd
 
-from common.utils import save_json_obj, load_json_obj, make_dir
-from data_collection.process_data.image_transforms import process_image
-
 BASE_DATA_PATH = './tactile_data'
 
+from common.utils import save_json_obj, load_json_obj, make_dir
+from data_collection.process.transform_image import transform_image
 
-def process_image_data(path, dir_names, image_params={}):
+
+def process_images(path, dir_names, image_params={}):
 
     if type(dir_names) is str:
         dir_names = [dir_names]
@@ -33,7 +33,7 @@ def process_image_data(path, dir_names, image_params={}):
         image_filenames = []
         for sensor_image in targets_df.sensor_image:
             image = cv2.imread(os.path.join(image_dir, sensor_image))
-            image = process_image(image, **image_params)
+            image = transform_image(image, **image_params)
             
             # save as image filename
             image_path, image_name = os.path.split(sensor_image)
@@ -54,7 +54,7 @@ def process_image_data(path, dir_names, image_params={}):
             image_filename = f"image_{os.path.splitext(image_name)[0].split('_')[1]}.png"
             if os.path.isfile(os.path.join(image_dir, image_path, image_name)):
                 image = cv2.imread(os.path.join(image_dir, sensor_image))
-                image = process_image(image, **image_params)
+                image = transform_image(image, **image_params)
                 cv2.imwrite(os.path.join(proc_image_dir, image_filename), image)
                 print(f'processed {dir_name}: {image_name} as {image_filename}')
 
@@ -125,4 +125,4 @@ if __name__ == "__main__":
     }
 
     # dir_names = split_data(BASE_DATA_PATH, dir_names)
-    process_image_data(BASE_DATA_PATH, dir_names, process_image_params)
+    process_images(BASE_DATA_PATH, dir_names, process_image_params)

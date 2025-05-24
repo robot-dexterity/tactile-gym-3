@@ -5,22 +5,19 @@ import os
 import itertools as it
 import time as t
 import numpy as np
+from cri.transforms import inv_transform_euler
 
-BASE_DATA_PATH = './tactile_data'
+BASE_DATA_PATH = './../tactile_data'
 
 from common.utils import load_json_obj, make_dir
-from cri.transforms import inv_transform_euler
-# from user_input.slider import Slider
-
-from demos.demo_servo.servo_utils.controller import PIDController
-from demos.demo_servo.servo_utils.labelled_model import LabelledModel
-from data_collection.collect_data.setup_embodiment import setup_embodiment
-
-# from demos.demo_servo.servo_utils.utils_plots import PlotContour3D as PlotContour
+from data_collection.collect.setup_embodiment import setup_embodiment
+from demos.servo.servo_utils.controller import PIDController
+from demos.servo.servo_utils.labelled_model import LabelledModel
+from demos.servo.servo_utils.utils_plots import Contour3DPlotter
+from demos.servo.setup_servo import setup_servo, setup_parse
 from learning.supervised.image_to_feature.cnn.label_encoder import LabelEncoder
 from learning.supervised.image_to_feature.cnn.setup_model import setup_model
-
-from demos.demo_servo.setup_servo import setup_servo, setup_parse
+# from user_input.slider import Slider
 
 
 def servo(
@@ -30,13 +27,11 @@ def servo(
     controller,
     image_dir,
     task_params,
-    show_plot=False,
+    pose_plotter=None
     # show_slider=False,
 ):
 
     # initialize peripherals
-    # if show_plot:
-    #     plotContour = PlotContour(robot.coord_frame)
     # if show_slider:
     #     slider = Slider(controller.ref)
 
@@ -71,8 +66,8 @@ def servo(
         robot.move_linear(pose)
 
         # optional peripheral: plot trajectory, reference slider
-        # if show_plot:
-        #     plotContour.update(pose)
+        if pose_plotter:
+            pose_plotter.update(pose)
         # if show_slider:
         #     controller.ref = slider.read()
 
@@ -86,11 +81,6 @@ def servo(
     robot.move_joints((*robot.joint_angles[:-1], 0))
     robot.close()
 
-    # optionally save plot and render view
-    # if show_plot:
-    #     plot_outfile = os.path.join(image_dir, r"../trajectory.png")
-    #     plotContour.save(plot_outfile)
-
 
 def launch(args):
 
@@ -99,20 +89,21 @@ def launch(args):
     for args.dataset, args.predict, args.model in it.product(args.datasets, args.predicts, args.models):
         for args.object, args.sample_num in zip(args.objects, args.sample_nums):
 
-            run_dir_name = '_'.join(filter(None, [args.object, *args.run_version]))
+            save_dir_name = '_'.join(filter(None, [args.object, *args.run_version]))
 
             # setup save dir
-            save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.predict, run_dir_name)
+            save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, 'run_' + save_dir_name)
             image_dir = os.path.join(save_dir, "processed_images")
-            make_dir(save_dir)
-            make_dir(image_dir)
+            make_dir([save_dir, image_dir])
 
-            # load model, environment and image processing parameters
-            model_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.predict, args.model)
-            env_params = load_json_obj(os.path.join(model_dir, 'env_params'))
+            # load model params from model directory
+            model_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, 'predict_' + args.predict, args.model)
             model_params = load_json_obj(os.path.join(model_dir, 'model_params'))
             model_image_params = load_json_obj(os.path.join(model_dir, 'model_image_params'))
-            model_label_params = load_json_obj(os.path.join(model_dir, 'model_label_params'))
+            label_params = load_json_obj(os.path.join(model_dir, 'model_label_params'))
+
+            # load environment and sensor params from model directory
+            env_params = load_json_obj(os.path.join(model_dir, 'env_params'))
             if os.path.isfile(os.path.join(model_dir, 'processed_image_params.json')):
                 sensor_image_params = load_json_obj(os.path.join(model_dir, 'processed_image_params'))
             else:
@@ -137,10 +128,11 @@ def launch(args):
             # setup the controller
             pid_controller = PIDController(**control_params)
 
-            # create the label encoder/decoder
-            label_encoder = LabelEncoder(model_label_params, device=args.device)
+            # setup any plotters
+            plotter = Contour3DPlotter(save_dir, save_num=args.sample_num)
 
             # setup the model
+            label_encoder = LabelEncoder(label_params, args.device)
             model = setup_model(
                 in_dim=model_image_params['image_processing']['dims'],
                 in_channels=1,
@@ -165,7 +157,8 @@ def launch(args):
                 pose_model,
                 pid_controller,
                 image_dir,
-                task_params
+                task_params,
+                pose_plotter=plotter
             )
 
 
@@ -179,7 +172,7 @@ if __name__ == "__main__":
         models=['simple_cnn'],
         objects=['circle', 'square'],
         sample_nums=[100, 100],
-        run_version=['test'],
+        # run_version=['test'],
         device='cuda'
     )
 

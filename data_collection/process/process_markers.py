@@ -4,14 +4,14 @@ import cv2
 import numpy as np
 import pandas as pd
 
-from data_collection.process_data.image_transforms import process_image
-from data_collection.process_data.process_image_data import combine_bbox
-from data_collection.process_data.marker_extraction_methods import MarkerDetector
+BASE_DATA_PATH = './tactile_data'
+
+from data_collection.process.transform_image import transform_image
+from data_collection.process.process_images import combine_bbox
+from data_collection.process.marker_extraction_methods import MarkerDetector
 from common.utils import save_json_obj, load_json_obj
 
 warnings.simplefilter('always', UserWarning)
-
-BASE_DATA_PATH = './tactile_data'
 
 
 def process_marker_data(path, dir_names, marker_params={}, image_params={}):
@@ -27,7 +27,7 @@ def process_marker_data(path, dir_names, marker_params={}, image_params={}):
 
     # marker processing function 
     def process_kps(image, image_params={}):
-        image = process_image(image, **image_params)
+        image = transform_image(image, **image_params)
         if image.shape[2]==1:
             image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
 

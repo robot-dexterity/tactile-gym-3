@@ -7,32 +7,40 @@ import torch
 import random
 
 
-def make_dir(dir, check=True):
+def make_dir(dirs, check=True):
+    if isinstance(dirs, str):
+        dirs = [dirs]
     if check:
-        check_dir(dir)
-    os.makedirs(dir, exist_ok=True)
+        check_dir(dirs)
+    for dir in dirs:
+        os.makedirs(dir, exist_ok=True)
 
 
-def check_dir(dir):
-    if os.path.isdir(dir):
-        str_input = input(f"\n{dir} \nSave Directory already exists, would you like to continue (y,n)? ")
-        if not str2bool(str_input):
-            exit()
-        else:
-            # clear out existing files
-            empty_dir(dir)
+def check_dir(dirs):
+    if isinstance(dirs, str):
+        dirs = [dirs]
+    for dir in dirs:
+        if os.path.isdir(dir):
+            str_input = input(f"\n{dir} \nSave Directory already exists, would you like to continue (y,n)?")
+            if not str2bool(str_input):
+                exit()
+            else:
+                empty_dir(dir) # clear out existing files
 
 
-def empty_dir(folder):
-    for filename in os.listdir(folder):
-        file_path = os.path.join(folder, filename)
-        try:
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-        except Exception as e:
-            print("Failed to delete %s. Reason: %s" % (file_path, e))
+def empty_dir(dirs):
+    if isinstance(dirs, str):
+        dirs = [dirs]
+    for dir in dirs:
+        for filename in os.listdir(dir):
+            file_path = os.path.join(dir, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                print("Failed to delete %s. Reason: %s" % (file_path, e))
     
 
 def seed_everything(seed):

@@ -3,8 +3,8 @@ import shutil
 import numpy as np
 import argparse
 
-from data_collection.collect_data.setup_targets import POSE_LABEL_NAMES, SHEAR_LABEL_NAMES
 from common.utils import load_json_obj, save_json_obj
+from data_collection.collect.setup_targets import POSE_LABEL_NAMES, SHEAR_LABEL_NAMES
 
 
 def csv_row_to_label(row):
@@ -16,7 +16,7 @@ def setup_parse(
     robot='sim',
     sensor='tactip',
     datasets=['edge_yRz'],
-    predicts=['predict_yRz'],
+    predicts=['pose_yRz'],
     models=['simple_cnn'],
     train_dirs=['train'],
     val_dirs=['val'],
@@ -26,8 +26,8 @@ def setup_parse(
 
     parser.add_argument('-r', '--robot', type=str, help="Options: ['sim', 'mg400', 'cr']", default=robot)
     parser.add_argument('-s', '--sensor', type=str, help="Options: ['tactip', 'tactip_127']", default=sensor)
-    parser.add_argument('-ds', '--datasets', nargs='+', help="Options: ['surface_3d', 'edge_2d', 'spherical_probe']", default=datasets)
-    parser.add_argument('-p', '--predicts', nargs='+', help="Options: ['servo_2d', 'servo_3d', 'servo_5d', 'track_2d', 'track_3d', 'track_4d']", default=predicts)
+    parser.add_argument('-ds', '--datasets', nargs='+', help="Options: ['edge_yRz']", default=datasets)
+    parser.add_argument('-p', '--predicts', nargs='+', help="Options: ['pose_yRz']", default=predicts)
     parser.add_argument('-dt', '--train_dirs', nargs='+', help="Default: ['train']", default=train_dirs)
     parser.add_argument('-dv', '--val_dirs', nargs='+', help="Default: ['val']", default=val_dirs)
     parser.add_argument('-m', '--models', nargs='+', help="Options: ['simple_cnn', 'nature_cnn', 'posenet', 'resnet', 'vit']", default=models)
@@ -41,7 +41,7 @@ def setup_learning(model_type, save_dir=None):
     learning_params = {
         'seed': 42,
         'batch_size': 16,
-        'epochs': 50,
+        'epochs': 5,
         'shuffle': True,
         'n_cpu': 1,
         'n_train_batches_per_epoch': None,
@@ -58,7 +58,7 @@ def setup_learning(model_type, save_dir=None):
 
     else: # not mdn
         learning_params.update({
-            'lr': 1e-5,
+            'lr': 1e-4,#5,
             'lr_factor': 0.5,
             'lr_patience': 10,
             'adam_decay': 1e-6,
@@ -230,6 +230,7 @@ def setup_model_labels(task_name, data_dirs, save_dir=None):
         'shear_xy':       ['shear_x', 'shear_y'],
         'shear_xyRz':     ['shear_x', 'shear_y', 'shear_Rz'],
         'pose_z_shear_xyRz': ['pose_z', 'shear_x', 'shear_y', 'shear_Rz'],
+        'pose_xRz':      ['pose_x', 'pose_Rz'],
         'pose_yRz':      ['pose_y', 'pose_Rz'],
         'pose_zRxRy':    ['pose_z', 'pose_Rx', 'pose_Ry'],
         'pose_yzRxRyRz': ['pose_y', 'pose_z', 'pose_Rx', 'pose_Ry', 'pose_Rz'],

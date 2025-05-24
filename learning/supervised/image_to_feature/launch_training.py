@@ -4,21 +4,19 @@ python launch_training.py -r sim -s tactip -m simple_cnn -t edge_2d
 import os
 import itertools as it
 
+BASE_DATA_PATH = './../tactile_data'
+
 from common.utils import make_dir, seed_everything
-from common.utils_plots import RegressionPlotter
+from learning.supervised.image_to_feature.cnn.evaluate_model import evaluate_model as evaluate_cnn_model
 from learning.supervised.image_to_feature.cnn.image_generator import ImageGenerator
 from learning.supervised.image_to_feature.cnn.label_encoder import LabelEncoder
-
 from learning.supervised.image_to_feature.cnn.setup_model import setup_model as setup_cnn_model
-from learning.supervised.image_to_feature.cnn.evaluate_model import evaluate_model as evaluate_cnn_model
 from learning.supervised.image_to_feature.cnn.train_model import train_model as train_cnn_model
-from learning.supervised.image_to_feature.mdn.setup_model import setup_model as setup_mdn_model
+from learning.supervised.image_to_feature.cnn.utils_plots import RegressionPlotter
 from learning.supervised.image_to_feature.mdn.evaluate_model import evaluate_model as evaluate_mdn_model
+from learning.supervised.image_to_feature.mdn.setup_model import setup_model as setup_mdn_model
 from learning.supervised.image_to_feature.mdn.train_model import train_model as train_mdn_model
-
 from learning.supervised.image_to_feature.setup_training import setup_training, setup_parse, csv_row_to_label
-
-BASE_DATA_PATH = './tactile_data'
 
 
 def launch(args):
@@ -36,7 +34,7 @@ def launch(args):
         ]
 
         # setup save dir
-        save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, args.predict, args.model)
+        save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, 'predict_' + args.predict, args.model)
         make_dir(save_dir)
 
         # setup parameters
@@ -59,11 +57,12 @@ def launch(args):
             **image_params['image_processing']
         )
 
-        # create the label encoder/decoder and plotter
-        label_encoder = LabelEncoder(label_params, args.device)
-        error_plotter = RegressionPlotter(label_params, save_dir, final_only=False)
+        # setup plotters
+        error_plotter = RegressionPlotter(save_dir, label_params)#, final_only=True)
 
-        # create the model
+        # setup the model
+        label_encoder = LabelEncoder(label_params, args.device)
+
         seed_everything(learning_params['seed'])
         model = setup_model(
             in_dim=image_params['image_processing']['dims'],
@@ -72,6 +71,8 @@ def launch(args):
             model_params=model_params,
             device=args.device
         )
+
+        # run the training
         train_model(
             prediction_mode='regression',
             model=model,
@@ -84,7 +85,7 @@ def launch(args):
             device=args.device
         )
         
-        # perform a final evaluation using the last model
+        # run an evaluation using the last model
         evaluate_model(
             model=model,
             label_encoder=label_encoder,
@@ -121,9 +122,9 @@ if __name__ == "__main__":
         sensor='tactip',
         datasets=['edge_yRz_shear'],
         predicts=['pose_yRz'],
-        models=['simple_cnn'],
-        train_dirs=['train'],
-        val_dirs=['val'],
+        models=['simple_cnn_test'],
+        train_dirs=['data_train'],
+        val_dirs=['data_val'],
         device='cuda'
     )
 

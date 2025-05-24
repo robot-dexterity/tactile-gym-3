@@ -13,7 +13,7 @@ from learning.supervised.image_to_feature.models.models import create_model
 from learning.supervised.image_to_feature.mdn.train_model import train_mdn_model
 from learning.supervised.image_to_feature.cnn.train_model import train_model
 from learning.supervised.image_to_image.utils_learning.utils_learning import seed_everything
-from common.utils_plots import RegressionPlotter
+from learning.supervised.image_to_feature.cnn.utils_plots import RegressionPlotter
 
 from common.utils import make_dir
 

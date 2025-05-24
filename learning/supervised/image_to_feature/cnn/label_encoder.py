@@ -8,11 +8,11 @@ import numpy as np
 import pandas as pd
 import torch
 
-from common.utils import load_json_obj
-from common.utils_plots import LearningPlotter, RegressionPlotter
-from learning.supervised.image_to_feature.setup_training import setup_parse
+BASE_DATA_PATH = './../tactile_data'
 
-BASE_DATA_PATH = './tactile_data'
+from common.utils import load_json_obj
+from learning.supervised.image_to_feature.cnn.utils_plots import LearningPlotter, RegressionPlotter
+from learning.supervised.image_to_feature.setup_training import setup_parse
 
 
 class LabelEncoder:
@@ -193,19 +193,18 @@ if __name__ == '__main__':
     args = setup_parse(
         robot='sim',
         sensor='tactip',
-        tasks=['edge_2d'],
-        models=['simple_cnn'],
-        version=[''],
+        datasets=['edge_yRz_shear'],
+        predicts=['pose_yRz'],
+        models=['simple_cnn_test'],
         device='cuda'
     )
 
-    for args.task, args.model in it.product(args.tasks, args.models):
+    output_dir = '_'.join([args.robot, args.sensor])
 
-        output_dir = '_'.join([args.robot, args.sensor])
-        model_dir_name = '_'.join(filter(None, [args.model, *args.version]))
+    for args.dataset, args.predict, args.model in it.product(args.datasets, args.predicts, args.models):
 
         # set save dir
-        save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.task, model_dir_name)
+        save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.dataset, 'predict_' + args.predict, args.model)
 
         # create task params
         task_params = load_json_obj(os.path.join(save_dir, 'task_params'))
@@ -214,12 +213,12 @@ if __name__ == '__main__':
         with open(os.path.join(save_dir, 'val_pred_targ_err.pkl'), 'rb') as f:
             pred_df, targ_df, err_df, label_names = pickle.load(f)
 
-        error_plotter = RegressionPlotter(task_params, save_dir, 'error_plot_best.png')
+        error_plotter = RegressionPlotter(save_dir, task_params, 'error_plot_best.png')
         error_plotter.final_plot(pred_df, targ_df, err_df)
 
         # load and plot training
         with open(os.path.join(save_dir, 'train_val_loss_acc.pkl'), 'rb') as f:
             train_loss, val_loss, train_acc, val_acc = pickle.load(f)
 
-        learning_plotter = LearningPlotter(save_dir=save_dir)
+        learning_plotter = LearningPlotter(save_dir)
         learning_plotter.final_plot(train_loss, val_loss, train_acc, val_acc)

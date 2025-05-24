@@ -9,7 +9,6 @@ def setup_parse(
     robot='sim',
     sensor='tactip',
     datasets=['edge_yRz'],
-    train_dirs=['train'],
     predicts=['pose_yRz'],
     models=['simple_cnn'],
     objects=['circle'],
@@ -21,8 +20,7 @@ def setup_parse(
 
     parser.add_argument('-r', '--robot', type=str, help="Options: ['sim', 'mg400', 'cr']", default=robot)
     parser.add_argument('-s', '--sensor', type=str, help="Options: ['tactip', 'tactip_127']", default=sensor)
-    parser.add_argument('-ds', '--datasets', nargs='+', help="Options: ['edge_yRz', 'surface_zRxRy', 'spheres_xy']", default=datasets)
-    parser.add_argument('-dt', '--train_dirs', nargs='+', help="Default: ['train']", default=train_dirs)
+    parser.add_argument('-ds', '--datasets', nargs='+', help="Options: ['edge_xRz']", default=datasets)
     parser.add_argument('-p', '--predicts', nargs='+', help="Options: ['pose_yRz', 'pose_zRxRy']", default=predicts)
     parser.add_argument('-m', '--models', nargs='+', help="Options: ['simple_cnn', 'nature_cnn', 'posenet', 'resnet', 'vit']", default=models)
     parser.add_argument('-o', '--objects', nargs='+', help="Options: ['circle', 'square']", default=objects)

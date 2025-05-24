@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from torch.autograd import Variable
 
-from data_collection.process_data.image_transforms import process_image
+from data_collection.process.transform_image import transform_image
 
 
 class LabelledModel:
@@ -21,7 +21,7 @@ class LabelledModel:
 
     def predict(self, tactile_image):
 
-        processed_image = process_image(
+        processed_image = transform_image(
             tactile_image,
             gray=False,
             **self.image_processing_params

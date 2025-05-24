@@ -13,7 +13,7 @@ class LearningPlotter:
         save_dir=None,
         max_epochs=None,
         name="train_plot.png",
-        final_only=True,
+        final_only=False,
     ):
         self._max_epochs = max_epochs
         self._save_dir = save_dir
@@ -115,6 +115,7 @@ class ClassificationPlotter:
             self._fig = plt.gcf()
             self._fig.set_size_inches((12, 12), forward=False)
 
+
     def update(
         self,
         pred_df,
@@ -149,6 +150,7 @@ class ClassificationPlotter:
         self._fig.canvas.draw()
         plt.pause(0.01)
 
+
     def final_plot(
         self,
         pred_df,
@@ -167,29 +169,30 @@ class ClassificationPlotter:
 class RegressionPlotter:
     def __init__(
         self,
-        task_params,
+        label_params,
         save_dir=None,
         name="error_plot.png",
         final_only=False,
     ):
-        self.target_label_names = list(filter(None, task_params['target_label_names']))
+        self.label_names = list(filter(None, label_params['target_label_names']))
         self.save_dir = save_dir
         self.name = name
         self.final_only = final_only
         self.block = True
 
-        self.n_plots = len(self.target_label_names)
+        self.n_plots = len(self.label_names)
         self.n_rows = int(np.ceil(self.n_plots/3))
         self.n_cols = np.minimum(self.n_plots, 3)
 
         if self.n_plots==2 or self.n_plots==5:
-            self.target_label_names.insert(2, None)
+            self.label_names.insert(2, None)
 
         if not self.final_only:
             plt.ion()
             self._fig, self._axs = plt.subplots(self.n_rows, self.n_cols,
                                                 figsize=(4*self.n_cols, 3.5*self.n_rows))
             self._fig.subplots_adjust(wspace=0.3)
+
 
     def update(
         self,
@@ -202,7 +205,7 @@ class RegressionPlotter:
 
         n_smooth = int(pred_df.shape[0] / 20)
 
-        for ax, label_name in zip(self._axs.flat, self.target_label_names):
+        for ax, label_name in zip(self._axs.flat, self.label_names):
             if label_name:
 
                 targ_df = targ_df.sort_values(by=label_name)
@@ -260,6 +263,7 @@ class RegressionPlotter:
 
         self._fig.canvas.draw()
         plt.pause(0.01)
+
 
     def final_plot(
         self,
